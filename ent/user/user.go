@@ -16,6 +16,12 @@ const (
 	FieldUsername = "username"
 	// FieldTgid holds the string denoting the tgid field in the database.
 	FieldTgid = "tgid"
+	// FieldCustomCode holds the string denoting the customcode field in the database.
+	FieldCustomCode = "custom_code"
+	// FieldAdmin holds the string denoting the admin field in the database.
+	FieldAdmin = "admin"
+	// FieldReadAll holds the string denoting the readall field in the database.
+	FieldReadAll = "read_all"
 	// EdgeRecords holds the string denoting the records edge name in mutations.
 	EdgeRecords = "records"
 	// Table holds the table name of the user in the database.
@@ -34,6 +40,9 @@ var Columns = []string{
 	FieldID,
 	FieldUsername,
 	FieldTgid,
+	FieldCustomCode,
+	FieldAdmin,
+	FieldReadAll,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -49,6 +58,12 @@ func ValidColumn(column string) bool {
 var (
 	// UsernameValidator is a validator for the "username" field. It is called by the builders before save.
 	UsernameValidator func(string) error
+	// DefaultCustomCode holds the default value on creation for the "customCode" field.
+	DefaultCustomCode bool
+	// DefaultAdmin holds the default value on creation for the "admin" field.
+	DefaultAdmin bool
+	// DefaultReadAll holds the default value on creation for the "readAll" field.
+	DefaultReadAll bool
 )
 
 // OrderOption defines the ordering options for the User queries.
@@ -67,6 +82,21 @@ func ByUsername(opts ...sql.OrderTermOption) OrderOption {
 // ByTgid orders the results by the tgid field.
 func ByTgid(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTgid, opts...).ToFunc()
+}
+
+// ByCustomCode orders the results by the customCode field.
+func ByCustomCode(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCustomCode, opts...).ToFunc()
+}
+
+// ByAdmin orders the results by the admin field.
+func ByAdmin(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAdmin, opts...).ToFunc()
+}
+
+// ByReadAll orders the results by the readAll field.
+func ByReadAll(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldReadAll, opts...).ToFunc()
 }
 
 // ByRecordsCount orders the results by records count.

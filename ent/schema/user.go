@@ -16,6 +16,11 @@ func (User) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("username").NotEmpty(),
 		field.Int("tgid").Unique().Immutable(),
+
+		// permissions
+		field.Bool("customCode").Default(false).Comment("If the user can use custom code"),
+		field.Bool("admin").Default(false).Comment("if the user can read, delete and modify all records"),
+		field.Bool("readAll").Default(false).Comment("If the user can read all records"),
 	}
 }
 

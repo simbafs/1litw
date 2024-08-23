@@ -20,6 +20,12 @@ type User struct {
 	Username string `json:"username,omitempty"`
 	// Tgid holds the value of the "tgid" field.
 	Tgid int `json:"tgid,omitempty"`
+	// If the user can use custom code
+	CustomCode bool `json:"customCode,omitempty"`
+	// if the user can read, delete and modify all records
+	Admin bool `json:"admin,omitempty"`
+	// If the user can read all records
+	ReadAll bool `json:"readAll,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
 	Edges        UserEdges `json:"edges"`
@@ -49,6 +55,8 @@ func (*User) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case user.FieldCustomCode, user.FieldAdmin, user.FieldReadAll:
+			values[i] = new(sql.NullBool)
 		case user.FieldID, user.FieldTgid:
 			values[i] = new(sql.NullInt64)
 		case user.FieldUsername:
@@ -85,6 +93,24 @@ func (u *User) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field tgid", values[i])
 			} else if value.Valid {
 				u.Tgid = int(value.Int64)
+			}
+		case user.FieldCustomCode:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field customCode", values[i])
+			} else if value.Valid {
+				u.CustomCode = value.Bool
+			}
+		case user.FieldAdmin:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field admin", values[i])
+			} else if value.Valid {
+				u.Admin = value.Bool
+			}
+		case user.FieldReadAll:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field readAll", values[i])
+			} else if value.Valid {
+				u.ReadAll = value.Bool
 			}
 		default:
 			u.selectValues.Set(columns[i], values[i])
@@ -132,6 +158,15 @@ func (u *User) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("tgid=")
 	builder.WriteString(fmt.Sprintf("%v", u.Tgid))
+	builder.WriteString(", ")
+	builder.WriteString("customCode=")
+	builder.WriteString(fmt.Sprintf("%v", u.CustomCode))
+	builder.WriteString(", ")
+	builder.WriteString("admin=")
+	builder.WriteString(fmt.Sprintf("%v", u.Admin))
+	builder.WriteString(", ")
+	builder.WriteString("readAll=")
+	builder.WriteString(fmt.Sprintf("%v", u.ReadAll))
 	builder.WriteByte(')')
 	return builder.String()
 }

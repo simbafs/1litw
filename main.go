@@ -9,9 +9,7 @@ import (
 	"net/http"
 	"strings"
 
-	// _ "modernc.org/sqlite"
-
-	_ "github.com/mattn/go-sqlite3"
+	// _ "github.com/mattn/go-sqlite3"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
@@ -101,7 +99,9 @@ func fileServer(addr string, files fs.FS) error {
 }
 
 func main() {
-	client, err := ent.Open("sqlite3", "file:./ent.sqlite?cache=shared&_fk=1")
+	RegisterSqlite3Driver()
+
+	client, err := ent.Open("sqlite3", "./1litw.sqlite?_pragma=foreign_keys(1)")
 	if err != nil {
 		log.Fatalf("failed opening connection to sqlite: %v", err)
 	}

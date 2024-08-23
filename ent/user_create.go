@@ -32,6 +32,48 @@ func (uc *UserCreate) SetTgid(i int) *UserCreate {
 	return uc
 }
 
+// SetCustomCode sets the "customCode" field.
+func (uc *UserCreate) SetCustomCode(b bool) *UserCreate {
+	uc.mutation.SetCustomCode(b)
+	return uc
+}
+
+// SetNillableCustomCode sets the "customCode" field if the given value is not nil.
+func (uc *UserCreate) SetNillableCustomCode(b *bool) *UserCreate {
+	if b != nil {
+		uc.SetCustomCode(*b)
+	}
+	return uc
+}
+
+// SetAdmin sets the "admin" field.
+func (uc *UserCreate) SetAdmin(b bool) *UserCreate {
+	uc.mutation.SetAdmin(b)
+	return uc
+}
+
+// SetNillableAdmin sets the "admin" field if the given value is not nil.
+func (uc *UserCreate) SetNillableAdmin(b *bool) *UserCreate {
+	if b != nil {
+		uc.SetAdmin(*b)
+	}
+	return uc
+}
+
+// SetReadAll sets the "readAll" field.
+func (uc *UserCreate) SetReadAll(b bool) *UserCreate {
+	uc.mutation.SetReadAll(b)
+	return uc
+}
+
+// SetNillableReadAll sets the "readAll" field if the given value is not nil.
+func (uc *UserCreate) SetNillableReadAll(b *bool) *UserCreate {
+	if b != nil {
+		uc.SetReadAll(*b)
+	}
+	return uc
+}
+
 // AddRecordIDs adds the "records" edge to the Record entity by IDs.
 func (uc *UserCreate) AddRecordIDs(ids ...int) *UserCreate {
 	uc.mutation.AddRecordIDs(ids...)
@@ -54,6 +96,7 @@ func (uc *UserCreate) Mutation() *UserMutation {
 
 // Save creates the User in the database.
 func (uc *UserCreate) Save(ctx context.Context) (*User, error) {
+	uc.defaults()
 	return withHooks(ctx, uc.sqlSave, uc.mutation, uc.hooks)
 }
 
@@ -79,6 +122,22 @@ func (uc *UserCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (uc *UserCreate) defaults() {
+	if _, ok := uc.mutation.CustomCode(); !ok {
+		v := user.DefaultCustomCode
+		uc.mutation.SetCustomCode(v)
+	}
+	if _, ok := uc.mutation.Admin(); !ok {
+		v := user.DefaultAdmin
+		uc.mutation.SetAdmin(v)
+	}
+	if _, ok := uc.mutation.ReadAll(); !ok {
+		v := user.DefaultReadAll
+		uc.mutation.SetReadAll(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (uc *UserCreate) check() error {
 	if _, ok := uc.mutation.Username(); !ok {
@@ -91,6 +150,15 @@ func (uc *UserCreate) check() error {
 	}
 	if _, ok := uc.mutation.Tgid(); !ok {
 		return &ValidationError{Name: "tgid", err: errors.New(`ent: missing required field "User.tgid"`)}
+	}
+	if _, ok := uc.mutation.CustomCode(); !ok {
+		return &ValidationError{Name: "customCode", err: errors.New(`ent: missing required field "User.customCode"`)}
+	}
+	if _, ok := uc.mutation.Admin(); !ok {
+		return &ValidationError{Name: "admin", err: errors.New(`ent: missing required field "User.admin"`)}
+	}
+	if _, ok := uc.mutation.ReadAll(); !ok {
+		return &ValidationError{Name: "readAll", err: errors.New(`ent: missing required field "User.readAll"`)}
 	}
 	return nil
 }
@@ -125,6 +193,18 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := uc.mutation.Tgid(); ok {
 		_spec.SetField(user.FieldTgid, field.TypeInt, value)
 		_node.Tgid = value
+	}
+	if value, ok := uc.mutation.CustomCode(); ok {
+		_spec.SetField(user.FieldCustomCode, field.TypeBool, value)
+		_node.CustomCode = value
+	}
+	if value, ok := uc.mutation.Admin(); ok {
+		_spec.SetField(user.FieldAdmin, field.TypeBool, value)
+		_node.Admin = value
+	}
+	if value, ok := uc.mutation.ReadAll(); ok {
+		_spec.SetField(user.FieldReadAll, field.TypeBool, value)
+		_node.ReadAll = value
 	}
 	if nodes := uc.mutation.RecordsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -163,6 +243,7 @@ func (ucb *UserCreateBulk) Save(ctx context.Context) ([]*User, error) {
 	for i := range ucb.builders {
 		func(i int, root context.Context) {
 			builder := ucb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*UserMutation)
 				if !ok {

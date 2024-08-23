@@ -3,14 +3,16 @@
 package ent
 
 import (
-	"1li/ent/migrate"
-	"1li/ent/record"
-	"1li/ent/user"
 	"context"
 	"errors"
 	"fmt"
 	"log"
 	"reflect"
+
+	"1li/ent/migrate"
+
+	"1li/ent/record"
+	"1li/ent/user"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"

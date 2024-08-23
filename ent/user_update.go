@@ -42,6 +42,48 @@ func (uu *UserUpdate) SetNillableUsername(s *string) *UserUpdate {
 	return uu
 }
 
+// SetCustomCode sets the "customCode" field.
+func (uu *UserUpdate) SetCustomCode(b bool) *UserUpdate {
+	uu.mutation.SetCustomCode(b)
+	return uu
+}
+
+// SetNillableCustomCode sets the "customCode" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableCustomCode(b *bool) *UserUpdate {
+	if b != nil {
+		uu.SetCustomCode(*b)
+	}
+	return uu
+}
+
+// SetAdmin sets the "admin" field.
+func (uu *UserUpdate) SetAdmin(b bool) *UserUpdate {
+	uu.mutation.SetAdmin(b)
+	return uu
+}
+
+// SetNillableAdmin sets the "admin" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableAdmin(b *bool) *UserUpdate {
+	if b != nil {
+		uu.SetAdmin(*b)
+	}
+	return uu
+}
+
+// SetReadAll sets the "readAll" field.
+func (uu *UserUpdate) SetReadAll(b bool) *UserUpdate {
+	uu.mutation.SetReadAll(b)
+	return uu
+}
+
+// SetNillableReadAll sets the "readAll" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableReadAll(b *bool) *UserUpdate {
+	if b != nil {
+		uu.SetReadAll(*b)
+	}
+	return uu
+}
+
 // AddRecordIDs adds the "records" edge to the Record entity by IDs.
 func (uu *UserUpdate) AddRecordIDs(ids ...int) *UserUpdate {
 	uu.mutation.AddRecordIDs(ids...)
@@ -135,6 +177,15 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := uu.mutation.Username(); ok {
 		_spec.SetField(user.FieldUsername, field.TypeString, value)
 	}
+	if value, ok := uu.mutation.CustomCode(); ok {
+		_spec.SetField(user.FieldCustomCode, field.TypeBool, value)
+	}
+	if value, ok := uu.mutation.Admin(); ok {
+		_spec.SetField(user.FieldAdmin, field.TypeBool, value)
+	}
+	if value, ok := uu.mutation.ReadAll(); ok {
+		_spec.SetField(user.FieldReadAll, field.TypeBool, value)
+	}
 	if uu.mutation.RecordsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -210,6 +261,48 @@ func (uuo *UserUpdateOne) SetUsername(s string) *UserUpdateOne {
 func (uuo *UserUpdateOne) SetNillableUsername(s *string) *UserUpdateOne {
 	if s != nil {
 		uuo.SetUsername(*s)
+	}
+	return uuo
+}
+
+// SetCustomCode sets the "customCode" field.
+func (uuo *UserUpdateOne) SetCustomCode(b bool) *UserUpdateOne {
+	uuo.mutation.SetCustomCode(b)
+	return uuo
+}
+
+// SetNillableCustomCode sets the "customCode" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableCustomCode(b *bool) *UserUpdateOne {
+	if b != nil {
+		uuo.SetCustomCode(*b)
+	}
+	return uuo
+}
+
+// SetAdmin sets the "admin" field.
+func (uuo *UserUpdateOne) SetAdmin(b bool) *UserUpdateOne {
+	uuo.mutation.SetAdmin(b)
+	return uuo
+}
+
+// SetNillableAdmin sets the "admin" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableAdmin(b *bool) *UserUpdateOne {
+	if b != nil {
+		uuo.SetAdmin(*b)
+	}
+	return uuo
+}
+
+// SetReadAll sets the "readAll" field.
+func (uuo *UserUpdateOne) SetReadAll(b bool) *UserUpdateOne {
+	uuo.mutation.SetReadAll(b)
+	return uuo
+}
+
+// SetNillableReadAll sets the "readAll" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableReadAll(b *bool) *UserUpdateOne {
+	if b != nil {
+		uuo.SetReadAll(*b)
 	}
 	return uuo
 }
@@ -336,6 +429,15 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	}
 	if value, ok := uuo.mutation.Username(); ok {
 		_spec.SetField(user.FieldUsername, field.TypeString, value)
+	}
+	if value, ok := uuo.mutation.CustomCode(); ok {
+		_spec.SetField(user.FieldCustomCode, field.TypeBool, value)
+	}
+	if value, ok := uuo.mutation.Admin(); ok {
+		_spec.SetField(user.FieldAdmin, field.TypeBool, value)
+	}
+	if value, ok := uuo.mutation.ReadAll(); ok {
+		_spec.SetField(user.FieldReadAll, field.TypeBool, value)
 	}
 	if uuo.mutation.RecordsCleared() {
 		edge := &sqlgraph.EdgeSpec{

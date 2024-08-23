@@ -64,6 +64,21 @@ func Tgid(v int) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldTgid, v))
 }
 
+// CustomCode applies equality check predicate on the "customCode" field. It's identical to CustomCodeEQ.
+func CustomCode(v bool) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldCustomCode, v))
+}
+
+// Admin applies equality check predicate on the "admin" field. It's identical to AdminEQ.
+func Admin(v bool) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldAdmin, v))
+}
+
+// ReadAll applies equality check predicate on the "readAll" field. It's identical to ReadAllEQ.
+func ReadAll(v bool) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldReadAll, v))
+}
+
 // UsernameEQ applies the EQ predicate on the "username" field.
 func UsernameEQ(v string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldUsername, v))
@@ -167,6 +182,36 @@ func TgidLT(v int) predicate.User {
 // TgidLTE applies the LTE predicate on the "tgid" field.
 func TgidLTE(v int) predicate.User {
 	return predicate.User(sql.FieldLTE(FieldTgid, v))
+}
+
+// CustomCodeEQ applies the EQ predicate on the "customCode" field.
+func CustomCodeEQ(v bool) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldCustomCode, v))
+}
+
+// CustomCodeNEQ applies the NEQ predicate on the "customCode" field.
+func CustomCodeNEQ(v bool) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldCustomCode, v))
+}
+
+// AdminEQ applies the EQ predicate on the "admin" field.
+func AdminEQ(v bool) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldAdmin, v))
+}
+
+// AdminNEQ applies the NEQ predicate on the "admin" field.
+func AdminNEQ(v bool) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldAdmin, v))
+}
+
+// ReadAllEQ applies the EQ predicate on the "readAll" field.
+func ReadAllEQ(v bool) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldReadAll, v))
+}
+
+// ReadAllNEQ applies the NEQ predicate on the "readAll" field.
+func ReadAllNEQ(v bool) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldReadAll, v))
 }
 
 // HasRecords applies the HasEdge predicate on the "records" edge.
