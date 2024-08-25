@@ -1,25 +1,15 @@
 package main
 
 import (
-	"1li/ent"
-	"context"
+	"1li/db"
 	"log"
 	"os"
 	// _ "github.com/mattn/go-sqlite3"
 )
 
 func main() {
-	RegisterSqlite3Driver()
-
-	client, err := ent.Open("sqlite3", "./1litw.sqlite?_pragma=foreign_keys(1)")
-	if err != nil {
-		log.Fatalf("failed opening connection to sqlite: %v", err)
-	}
-	defer client.Close()
-
-	// Run the auto migration tool.
-	if err := client.Schema.Create(context.Background()); err != nil {
-		log.Fatalf("failed creating schema resources: %v", err)
+	if err := db.InitDB(); err != nil {
+		log.Fatalf("failed initializing database: %v", err)
 	}
 
 	if err := initServer("static"); err != nil {
@@ -30,5 +20,5 @@ func main() {
 		log.Fatal(fileServer(":3000", os.DirFS("static")))
 	}()
 
-	log.Fatal(tgBot("7199207337:AAG_X5KQrXUkqtw_IeLtTe6CUAF2ZTNkLzA", client))
+	log.Fatal(tgBot("7199207337:AAG_X5KQrXUkqtw_IeLtTe6CUAF2ZTNkLzA"))
 }

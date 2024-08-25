@@ -1,7 +1,8 @@
 package main
 
 import (
-	"1li/ent"
+	"1li/db"
+	"1li/ent/user"
 	"context"
 	"fmt"
 	"log"
@@ -12,7 +13,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-func tgBot(token string, client *ent.Client) error {
+func tgBot(token string) error {
 	bot, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
 		return err
@@ -40,12 +41,18 @@ func tgBot(token string, client *ent.Client) error {
 		}
 
 		if update.Message.IsCommand() && update.Message.Command() == "start" {
+			// check if user exists
+			u, err := db.Client.User.Query().Where(user.Tgid(update.Message.From.ID)).Only(context.Background())
+			if err == nil {
+				reply("Welcome back " + u.Username)
+				continue
+			}
+
 			// create a new user
-			ctx := context.Background()
-			_, err := client.User.Create().
+			_, err = db.Client.User.Create().
 				SetTgid(update.Message.From.ID).
 				SetUsername(update.Message.From.UserName).
-				Save(ctx)
+				Save(context.Background())
 			if err != nil {
 				log.Printf("Error adding user: %v", err)
 
@@ -70,8 +77,7 @@ func tgBot(token string, client *ent.Client) error {
 
 		log.Printf("[%s] %s -> %s\n", update.Message.From.UserName, code, target)
 
-		ctx := context.Background()
-		rec, err := addRecord(client, ctx, code, target, update.Message.From.ID)
+		rec, err := db.AddUser(context.Background(), code, target, update.Message.From.ID)
 		if err != nil {
 			log.Printf("Error adding record: %v", err)
 
