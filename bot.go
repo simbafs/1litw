@@ -40,27 +40,36 @@ func tgBot(token string) error {
 			bot.Send(msg)
 		}
 
-		if update.Message.IsCommand() && update.Message.Command() == "start" {
-			// check if user exists
-			u, err := db.Client.User.Query().Where(user.Tgid(update.Message.From.ID)).Only(context.Background())
-			if err == nil {
-				reply("Welcome back " + u.Username)
-				continue
+		if update.Message.IsCommand() {
+			switch update.Message.Command() {
+			case "start":
+				// check if user exists
+				u, err := db.Client.User.Query().Where(user.Tgid(update.Message.From.ID)).Only(context.Background())
+				if err == nil {
+					reply("Welcome back " + u.Username)
+					continue
+				}
+
+				// create a new user
+				_, err = db.Client.User.Create().
+					SetTgid(update.Message.From.ID).
+					SetUsername(update.Message.From.UserName).
+					Save(context.Background())
+				if err != nil {
+					log.Printf("Error adding user: %v", err)
+
+					reply("Error adding user, try /start again later")
+				}
+
+				reply("Welcome to 1li! " + update.Message.From.UserName)
+			case "sync":
+				if err := SyncFromDB(); err != nil {
+					log.Printf("Error syncing from db: %v", err)
+
+					reply("Error syncing from db")
+				}
+				reply("Sync from db done")
 			}
-
-			// create a new user
-			_, err = db.Client.User.Create().
-				SetTgid(update.Message.From.ID).
-				SetUsername(update.Message.From.UserName).
-				Save(context.Background())
-			if err != nil {
-				log.Printf("Error adding user: %v", err)
-
-				reply("Error adding user, try /start again later")
-			}
-
-			reply("Welcome to 1li! " + update.Message.From.UserName)
-
 			continue
 		}
 

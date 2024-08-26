@@ -4,7 +4,6 @@ import (
 	"io/fs"
 	"net/http"
 	"os"
-	// _ "github.com/mattn/go-sqlite3"
 )
 
 // initServer inits basic files and directories for the server.

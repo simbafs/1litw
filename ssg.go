@@ -1,11 +1,15 @@
 package main
 
 import (
+	"1li/db"
 	"1li/ent"
+	"1li/errorCollector"
+	"context"
 	"fmt"
 	"log"
 	"os"
 	"path"
+	"sync"
 )
 
 func StaticGenOne(rec *ent.Record) error {
@@ -24,4 +28,28 @@ func StaticGenOne(rec *ent.Record) error {
 	log.Printf("Generate link for %s -> %s\n", rec.Code, rec.Target)
 
 	return nil
+}
+
+func SyncFromDB() error {
+	recs, err := db.Client.Record.Query().All(context.Background())
+	if err != nil {
+		return err
+	}
+
+	errs := errorCollector.New()
+
+	wg := sync.WaitGroup{}
+	wg.Add(len(recs))
+
+	for _, rec := range recs {
+		go func(rec *ent.Record) {
+			defer wg.Done()
+			err := StaticGenOne(rec)
+			errs.Add(err)
+		}(rec)
+	}
+
+	wg.Wait()
+
+	return errs
 }

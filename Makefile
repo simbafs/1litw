@@ -1,5 +1,9 @@
+.PHONY: ent
 ent:
 	go generate ./ent
 	go mod tidy
 
-.PHONY: ent
+
+.PHONY: dev
+dev: 
+	nodemon --ext go --signal SIGTERM --exec "go run ."
