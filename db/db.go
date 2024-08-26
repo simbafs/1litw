@@ -3,10 +3,8 @@ package db
 import (
 	"1li/db/driver"
 	"1li/ent"
-	"1li/ent/user"
 	"context"
 	"database/sql"
-	"fmt"
 )
 
 var Client *ent.Client
@@ -27,24 +25,4 @@ func InitDB() error {
 	Client = client
 
 	return nil
-}
-
-func AddUser(ctx context.Context, code string, target string, userid int) (*ent.Record, error) {
-	user, err := Client.User.Query().
-		Where(user.Tgid(userid)).
-		Only(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("get user: %w", err)
-	}
-
-	rec, err := Client.Record.Create().
-		SetCode(code).
-		SetTarget(target).
-		SetUser(user).
-		Save(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("create record: %w", err)
-	}
-
-	return rec, nil
 }

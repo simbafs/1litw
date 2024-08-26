@@ -1,8 +1,10 @@
 package main
 
 import (
-	"1li/db"
-	"1li/ent/user"
+	"1li/db/record"
+	"1li/db/user"
+
+	// "1li/ent/user"
 	"context"
 	"fmt"
 	"log"
@@ -44,20 +46,14 @@ func tgBot(token string) error {
 			switch update.Message.Command() {
 			case "start":
 				// check if user exists
-				u, err := db.Client.User.Query().Where(user.Tgid(update.Message.From.ID)).Only(context.Background())
-				if err == nil {
+				if u, err := user.Get(context.Background(), update.Message.From.ID); err == nil {
 					reply("Welcome back " + u.Username)
 					continue
 				}
 
 				// create a new user
-				_, err = db.Client.User.Create().
-					SetTgid(update.Message.From.ID).
-					SetUsername(update.Message.From.UserName).
-					Save(context.Background())
-				if err != nil {
+				if _, err := user.Add(context.Background(), update.Message.From.UserName, update.Message.From.ID); err != nil {
 					log.Printf("Error adding user: %v", err)
-
 					reply("Error adding user, try /start again later")
 				}
 
@@ -69,7 +65,15 @@ func tgBot(token string) error {
 					reply("Error syncing from db")
 				}
 				reply("Sync from db done")
+			case "op":
 			}
+
+			continue
+		}
+
+		u, err := user.Get(context.Background(), update.Message.From.ID)
+		if err != nil {
+			reply("Please /start first")
 			continue
 		}
 
@@ -80,18 +84,22 @@ func tgBot(token string) error {
 			code = nonConflictCode(6)
 			target = part[0]
 		} else {
-			code = part[0]
-			target = part[1]
+			if u.CustomCode {
+				code = part[0]
+				target = part[1]
+			} else {
+				reply("You are not allowed to use custom code")
+				continue
+			}
 		}
 
 		log.Printf("[%s] %s -> %s\n", update.Message.From.UserName, code, target)
 
-		rec, err := db.AddUser(context.Background(), code, target, update.Message.From.ID)
+		rec, err := record.Add(context.Background(), code, target, update.Message.From.ID)
 		if err != nil {
 			log.Printf("Error adding record: %v", err)
 
 			reply("Error adding record")
-
 			continue
 		}
 
