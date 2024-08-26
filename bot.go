@@ -66,8 +66,44 @@ func tgBot(token string) error {
 				}
 				reply("Sync from db done")
 			case "op":
-			}
+				if !user.IsAdmin(context.Background(), update.Message.From.ID) {
+					reply("You are not an admin")
+					continue
+				}
 
+				part := strings.SplitN(update.Message.Text, " ", 2)
+				if len(part) != 2 {
+					reply("Usage: /op <username>")
+					continue
+				}
+
+				if _, err := user.Op(context.Background(), part[1]); err != nil {
+					log.Printf("Error setting admin: %v", err)
+					reply("Error setting admin")
+					continue
+				}
+
+				reply("Set admin for " + part[1])
+			case "deop":
+				if !user.IsAdmin(context.Background(), update.Message.From.ID) {
+					reply("You are not an admin")
+					continue
+				}
+
+				part := strings.SplitN(update.Message.Text, " ", 2)
+				if len(part) != 2 {
+					reply("Usage: /deop <username>")
+					continue
+				}
+
+				if _, err := user.Deop(context.Background(), part[1]); err != nil {
+					log.Printf("Error setting admin: %v", err)
+					reply("Error setting admin")
+					continue
+				}
+
+				reply("Deop for " + part[1])
+			}
 			continue
 		}
 
