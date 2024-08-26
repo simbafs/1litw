@@ -131,6 +131,16 @@ func tgBot(token string) error {
 
 		log.Printf("[%s] %s -> %s\n", update.Message.From.UserName, code, target)
 
+		// check is code exists
+		if exists, err := record.Exists(context.Background(), code); err != nil {
+			log.Printf("Error checking record: %v", err)
+			reply("Error checking record")
+			continue
+		} else if exists {
+			reply("Code already exists")
+			continue
+		}
+
 		rec, err := record.Add(context.Background(), code, target, update.Message.From.ID)
 		if err != nil {
 			log.Printf("Error adding record: %v", err)

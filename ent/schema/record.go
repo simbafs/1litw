@@ -16,7 +16,7 @@ type Record struct {
 // Fields of the Record.
 func (Record) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("code").NotEmpty(),
+		field.String("code").NotEmpty().Unique(),
 		field.String("target").NotEmpty(),
 		field.Time("created_at").Immutable().Default(func() time.Time {
 			return time.Now()

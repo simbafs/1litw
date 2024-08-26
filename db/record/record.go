@@ -3,6 +3,7 @@ package record
 import (
 	"1li/db"
 	"1li/ent"
+	"1li/ent/record"
 	"1li/ent/user"
 	"context"
 	"fmt"
@@ -26,4 +27,19 @@ func Add(ctx context.Context, code string, target string, userid int) (*ent.Reco
 	}
 
 	return rec, nil
+}
+
+func Exists(ctx context.Context, code string) (bool, error) {
+	_, err := db.Client.Record.Query().
+		Where(record.Code(code)).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return false, nil
+		}
+
+		return false, fmt.Errorf("query record: %w", err)
+	}
+
+	return true, nil
 }

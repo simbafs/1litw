@@ -11,7 +11,7 @@ var (
 	// RecordsColumns holds the columns for the "records" table.
 	RecordsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "code", Type: field.TypeString},
+		{Name: "code", Type: field.TypeString, Unique: true},
 		{Name: "target", Type: field.TypeString},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "user_records", Type: field.TypeInt, Nullable: true},
