@@ -15,6 +15,125 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
+func CMDStart(update tgbotapi.Update, reply func(text string)) {
+	// check if user exists
+	if u, err := user.Get(context.Background(), update.Message.From.ID); err == nil {
+		reply("Welcome back " + u.Username)
+		return
+	}
+
+	// create a new user
+	if _, err := user.Add(context.Background(), update.Message.From.UserName, update.Message.From.ID); err != nil {
+		log.Printf("Error adding user: %v", err)
+		reply("Error adding user, try /start again later")
+	}
+
+	reply("Welcome to 1li! " + update.Message.From.UserName)
+
+	return
+}
+
+func CMDSync(update tgbotapi.Update, reply func(text string)) {
+	if err := SyncFromDB(); err != nil {
+		log.Printf("Error syncing from db: %v", err)
+
+		reply("Error syncing from db")
+	}
+	reply("Sync from db done")
+}
+
+func CMDOp(update tgbotapi.Update, reply func(text string)) {
+	if !user.IsAdmin(context.Background(), update.Message.From.ID) {
+		reply("You are not an admin")
+		return
+	}
+
+	part := strings.SplitN(update.Message.Text, " ", 2)
+	if len(part) != 2 {
+		reply("Usage: /op <username>")
+		return
+	}
+
+	if _, err := user.Op(context.Background(), part[1]); err != nil {
+		log.Printf("Error setting admin: %v", err)
+		reply("Error setting admin")
+		return
+	}
+
+	reply("Set admin for " + part[1])
+}
+
+func CMDDeop(update tgbotapi.Update, reply func(text string)) {
+	if !user.IsAdmin(context.Background(), update.Message.From.ID) {
+		reply("You are not an admin")
+		return
+	}
+
+	part := strings.SplitN(update.Message.Text, " ", 2)
+	if len(part) != 2 {
+		reply("Usage: /deop <username>")
+		return
+	}
+
+	if _, err := user.Deop(context.Background(), part[1]); err != nil {
+		log.Printf("Error setting admin: %v", err)
+		reply("Error setting admin")
+		return
+	}
+
+	reply("Deop for " + part[1])
+}
+
+func ShortURL(update tgbotapi.Update, reply func(text string)) {
+	u, err := user.Get(context.Background(), update.Message.From.ID)
+	if err != nil {
+		reply("Please /start first")
+		return
+	}
+
+	part := strings.SplitN(update.Message.Text, " ", 2)
+	target := ""
+	code := ""
+	if len(part) == 1 {
+		code = nonConflictCode(6)
+		target = part[0]
+	} else {
+		if u.CustomCode {
+			code = part[0]
+			target = part[1]
+		} else {
+			reply("You are not allowed to use custom code")
+			return
+		}
+	}
+
+	log.Printf("[%s] %s -> %s\n", update.Message.From.UserName, code, target)
+
+	// check is code exists
+	if exists, err := record.Exists(context.Background(), code); err != nil {
+		log.Printf("Error checking record: %v", err)
+		reply("Error checking record")
+		return
+	} else if exists {
+		reply("Code already exists")
+		return
+	}
+
+	rec, err := record.Add(context.Background(), code, target, update.Message.From.ID)
+	if err != nil {
+		log.Printf("Error adding record: %v", err)
+
+		reply("Error adding record")
+		return
+	}
+
+	if err := StaticGenOne(rec); err != nil {
+		log.Printf("Error generating static: %v", err)
+	}
+
+	reply(fmt.Sprintf("Add a record %s -> %s", code, target))
+}
+
 func tgBot(token string) error {
 	bot, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
@@ -45,115 +164,19 @@ func tgBot(token string) error {
 		if update.Message.IsCommand() {
 			switch update.Message.Command() {
 			case "start":
-				// check if user exists
-				if u, err := user.Get(context.Background(), update.Message.From.ID); err == nil {
-					reply("Welcome back " + u.Username)
-					continue
-				}
-
-				// create a new user
-				if _, err := user.Add(context.Background(), update.Message.From.UserName, update.Message.From.ID); err != nil {
-					log.Printf("Error adding user: %v", err)
-					reply("Error adding user, try /start again later")
-				}
-
-				reply("Welcome to 1li! " + update.Message.From.UserName)
+				CMDStart(update, reply)
 			case "sync":
-				if err := SyncFromDB(); err != nil {
-					log.Printf("Error syncing from db: %v", err)
-
-					reply("Error syncing from db")
-				}
-				reply("Sync from db done")
+				CMDSync(update, reply)
 			case "op":
-				if !user.IsAdmin(context.Background(), update.Message.From.ID) {
-					reply("You are not an admin")
-					continue
-				}
-
-				part := strings.SplitN(update.Message.Text, " ", 2)
-				if len(part) != 2 {
-					reply("Usage: /op <username>")
-					continue
-				}
-
-				if _, err := user.Op(context.Background(), part[1]); err != nil {
-					log.Printf("Error setting admin: %v", err)
-					reply("Error setting admin")
-					continue
-				}
-
-				reply("Set admin for " + part[1])
+				CMDOp(update, reply)
 			case "deop":
-				if !user.IsAdmin(context.Background(), update.Message.From.ID) {
-					reply("You are not an admin")
-					continue
-				}
-
-				part := strings.SplitN(update.Message.Text, " ", 2)
-				if len(part) != 2 {
-					reply("Usage: /deop <username>")
-					continue
-				}
-
-				if _, err := user.Deop(context.Background(), part[1]); err != nil {
-					log.Printf("Error setting admin: %v", err)
-					reply("Error setting admin")
-					continue
-				}
-
-				reply("Deop for " + part[1])
+				CMDDeop(update, reply)
+			default:
+				reply("I don't know that command")
 			}
-			continue
-		}
-
-		u, err := user.Get(context.Background(), update.Message.From.ID)
-		if err != nil {
-			reply("Please /start first")
-			continue
-		}
-
-		part := strings.SplitN(update.Message.Text, " ", 2)
-		target := ""
-		code := ""
-		if len(part) == 1 {
-			code = nonConflictCode(6)
-			target = part[0]
 		} else {
-			if u.CustomCode {
-				code = part[0]
-				target = part[1]
-			} else {
-				reply("You are not allowed to use custom code")
-				continue
-			}
+			ShortURL(update, reply)
 		}
-
-		log.Printf("[%s] %s -> %s\n", update.Message.From.UserName, code, target)
-
-		// check is code exists
-		if exists, err := record.Exists(context.Background(), code); err != nil {
-			log.Printf("Error checking record: %v", err)
-			reply("Error checking record")
-			continue
-		} else if exists {
-			reply("Code already exists")
-			continue
-		}
-
-		rec, err := record.Add(context.Background(), code, target, update.Message.From.ID)
-		if err != nil {
-			log.Printf("Error adding record: %v", err)
-
-			reply("Error adding record")
-			continue
-		}
-
-		if err := StaticGenOne(rec); err != nil {
-			log.Printf("Error generating static: %v", err)
-		}
-
-		reply(fmt.Sprintf("Add a record %s -> %s", code, target))
 	}
 
 	return nil
