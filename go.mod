@@ -10,6 +10,7 @@ require (
 
 require (
 	ariga.io/atlas v0.19.1-0.20240203083654-5948b60a8e43 // indirect
+	github.com/PaulSonOfLars/gotgbot/v2 v2.0.0-rc.29 // indirect
 	github.com/agext/levenshtein v1.2.1 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect

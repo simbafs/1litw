@@ -10,6 +10,8 @@ import (
 	"log"
 	"strings"
 
+	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
@@ -22,33 +24,31 @@ func reply(message *tgbotapi.Message, bot *tgbotapi.BotAPI) func(text string) {
 	}
 }
 
-func CMDStart(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
-	reply := reply(update.Message, bot)
-	// check if user exists
-	if u, err := user.Get(context.Background(), update.Message.From.ID); err == nil {
-		reply("Welcome back " + u.Username)
-		return
+func cmdStart(b *gotgbot.Bot, ctx *ext.Context) error {
+	if u, err := user.Get(context.Background(), int(ctx.Message.From.Id)); err == nil {
+		ctx.EffectiveMessage.Reply(b, fmt.Sprintf("Welcome back %s", u.Username), nil)
+		return nil
 	}
 
-	// create a new user
-	if _, err := user.Add(context.Background(), update.Message.From.UserName, update.Message.From.ID); err != nil {
+	if _, err := user.Add(context.Background(), ctx.Message.From.Username, int(ctx.Message.From.Id)); err != nil {
 		log.Printf("Error adding user: %v", err)
-		reply("Error adding user, try /start again later")
+		ctx.EffectiveMessage.Reply(b, "Error adding user, try /start again later", nil)
 	}
 
-	reply("Welcome to 1li! " + update.Message.From.UserName)
+	ctx.EffectiveMessage.Reply(b, fmt.Sprintf("Welcome to 1li! %s", ctx.Message.From.Username), nil)
 
-	return
+	return nil
 }
 
-func CMDSync(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
-	reply := reply(update.Message, bot)
+func cmdSync(b *gotgbot.Bot, ctx *ext.Context) error {
 	if err := ssg.SyncFromDB(); err != nil {
 		log.Printf("Error syncing from db: %v", err)
 
-		reply("Error syncing from db")
+		ctx.EffectiveMessage.Reply(b, "Error syncing from db", nil)
+		return nil
 	}
-	reply("Sync from db done")
+	ctx.EffectiveMessage.Reply(b, "Sync from db done", nil)
+	return nil
 }
 
 func CMDOp(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
