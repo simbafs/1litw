@@ -5,6 +5,7 @@ import (
 	"sync"
 )
 
+// ErrorCollector collects errors thread-safely.
 type ErrorCollector struct {
 	errs []error
 	lock sync.Mutex

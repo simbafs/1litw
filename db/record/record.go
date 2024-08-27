@@ -9,6 +9,7 @@ import (
 	"fmt"
 )
 
+// Add adds a record to the database.
 func Add(ctx context.Context, code string, target string, userid int) (*ent.Record, error) {
 	user, err := db.Client.User.Query().
 		Where(user.Tgid(userid)).
@@ -29,6 +30,7 @@ func Add(ctx context.Context, code string, target string, userid int) (*ent.Reco
 	return rec, nil
 }
 
+// Exists checks if a record exists in the database.
 func Exists(ctx context.Context, code string) (bool, error) {
 	_, err := db.Client.Record.Query().
 		Where(record.Code(code)).

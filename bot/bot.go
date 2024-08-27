@@ -6,6 +6,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
+// Run starts the bot.
 func Run(token string) error {
 	bot, err := tgbotapi.NewBotAPI(token)
 	if err != nil {

@@ -20,8 +20,9 @@ func RandomCode(n int) string {
 	return chars
 }
 
+// NonConflictCode ensure the code is not exist in the database
+// TODO: checck db
 func NonConflictCode(n int) string {
-	// check db in the future
 	return RandomCode(n)
 }
 

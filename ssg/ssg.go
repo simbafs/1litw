@@ -12,6 +12,7 @@ import (
 	"sync"
 )
 
+// StaticGenOne generate a static page for a record.
 func StaticGenOne(rec *ent.Record) error {
 	content := []byte(fmt.Sprintf("<meta http-equiv=\"refresh\" content=\"0; url=%s\"><p>Redirecting to <a href=\"%s\">%s</a></p>", rec.Target, rec.Target, rec.Target))
 
@@ -30,6 +31,7 @@ func StaticGenOne(rec *ent.Record) error {
 	return nil
 }
 
+// SyncFromDB generate static pages for all records in the database.
 func SyncFromDB() error {
 	recs, err := db.Client.Record.Query().All(context.Background())
 	if err != nil {
