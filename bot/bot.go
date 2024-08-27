@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"1li/bot/perms"
 	"log"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
@@ -25,6 +26,7 @@ func Run(token string) error {
 
 	dispatcher.AddHandler(handlers.NewCommand("start", cmdStart))
 	dispatcher.AddHandler(handlers.NewCommand("sync", cmdSync))
+	dispatcher.AddHandler(perms.CMD)
 
 	updater := ext.NewUpdater(dispatcher, nil)
 
