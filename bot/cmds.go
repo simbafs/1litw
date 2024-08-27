@@ -1,16 +1,14 @@
-package main
+package bot
 
 import (
 	"1li/db/record"
 	"1li/db/user"
-
-	// "1li/ent/user"
+	"1li/ssg"
+	"1li/util"
 	"context"
 	"fmt"
 	"log"
 	"strings"
-
-	// _ "github.com/mattn/go-sqlite3"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
@@ -45,7 +43,7 @@ func CMDStart(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
 
 func CMDSync(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
 	reply := reply(update.Message, bot)
-	if err := SyncFromDB(); err != nil {
+	if err := ssg.SyncFromDB(); err != nil {
 		log.Printf("Error syncing from db: %v", err)
 
 		reply("Error syncing from db")
@@ -109,7 +107,7 @@ func ShortURL(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
 	target := ""
 	code := ""
 	if len(part) == 1 {
-		code = nonConflictCode(6)
+		code = util.NonConflictCode(6)
 		target = part[0]
 	} else {
 		if u.CustomCode {
@@ -121,7 +119,7 @@ func ShortURL(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
 		}
 	}
 
-	if !IsValidURL(target) {
+	if !util.IsValidURL(target) {
 		reply("Target is not a valid URL")
 		return
 	}
@@ -146,50 +144,9 @@ func ShortURL(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
 		return
 	}
 
-	if err := StaticGenOne(rec); err != nil {
+	if err := ssg.StaticGenOne(rec); err != nil {
 		log.Printf("Error generating static: %v", err)
 	}
 
 	reply(fmt.Sprintf("Add a record %s -> %s", code, target))
-}
-
-func tgBot(token string) error {
-	bot, err := tgbotapi.NewBotAPI(token)
-	if err != nil {
-		return err
-	}
-
-	bot.Debug = false
-
-	log.Printf("Authorized on account %s", bot.Self.UserName)
-
-	u := tgbotapi.NewUpdate(0)
-	u.Timeout = 60
-
-	updates, err := bot.GetUpdatesChan(u)
-
-	for update := range updates {
-		if update.Message == nil { // ignore any non-Message Updates
-			continue
-		}
-
-		if update.Message.IsCommand() {
-			switch update.Message.Command() {
-			case "start":
-				CMDStart(update, bot)
-			case "sync":
-				CMDSync(update, bot)
-			case "op":
-				CMDOp(update, bot)
-			case "deop":
-				CMDDeop(update, bot)
-			default:
-				reply(update.Message, bot)("I don't know that command")
-			}
-		} else {
-			ShortURL(update, bot)
-		}
-	}
-
-	return nil
 }

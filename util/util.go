@@ -1,12 +1,12 @@
-package main
+package util
 
 import (
 	"math/rand"
 	"net/url"
 )
 
-// randomCode generates a random code of length n.
-func randomCode(n int) string {
+// RandomCode generates a random code of length n.
+func RandomCode(n int) string {
 	// chars include base 58
 	chars := "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 	b := make([]byte, n)
@@ -20,9 +20,9 @@ func randomCode(n int) string {
 	return chars
 }
 
-func nonConflictCode(n int) string {
+func NonConflictCode(n int) string {
 	// check db in the future
-	return randomCode(n)
+	return RandomCode(n)
 }
 
 // IsValidURL checks if a string is a valid URL and the scheme is http or https.

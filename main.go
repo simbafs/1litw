@@ -1,10 +1,11 @@
 package main
 
 import (
+	"1li/bot"
 	"1li/db"
+	"1li/fileserver"
 	"log"
 	"os"
-	// _ "github.com/mattn/go-sqlite3"
 )
 
 func main() {
@@ -12,13 +13,13 @@ func main() {
 		log.Fatalf("failed initializing database: %v", err)
 	}
 
-	if err := initServer("static"); err != nil {
+	if err := fileserver.Init("static"); err != nil {
 		log.Fatalf("failed initializing server: %v", err)
 	}
 
 	go func() {
-		log.Fatal(fileServer(":3000", os.DirFS("static")))
+		log.Fatal(fileserver.ListenAndServe(":3000", os.DirFS("static")))
 	}()
 
-	log.Fatal(tgBot("7199207337:AAG_X5KQrXUkqtw_IeLtTe6CUAF2ZTNkLzA"))
+	log.Fatal(bot.Run("7199207337:AAG_X5KQrXUkqtw_IeLtTe6CUAF2ZTNkLzA"))
 }
