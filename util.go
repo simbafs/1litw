@@ -1,6 +1,9 @@
 package main
 
-import "math/rand"
+import (
+	"math/rand"
+	"net/url"
+)
 
 // randomCode generates a random code of length n.
 func randomCode(n int) string {
@@ -20,4 +23,14 @@ func randomCode(n int) string {
 func nonConflictCode(n int) string {
 	// check db in the future
 	return randomCode(n)
+}
+
+// IsValidURL checks if a string is a valid URL and the scheme is http or https.
+func IsValidURL(str string) bool {
+	u, err := url.Parse(str)
+	if err != nil || u.Scheme == "" || u.Host == "" {
+		return false
+	}
+
+	return u.Scheme == "http" || u.Scheme == "https"
 }

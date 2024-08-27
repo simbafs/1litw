@@ -107,6 +107,11 @@ func ShortURL(update tgbotapi.Update, reply func(text string)) {
 		}
 	}
 
+	if !IsValidURL(target) {
+		reply("Target is not a valid URL")
+		return
+	}
+
 	log.Printf("[%s] %s -> %s\n", update.Message.From.UserName, code, target)
 
 	// check is code exists
