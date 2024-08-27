@@ -15,7 +15,17 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-func CMDStart(update tgbotapi.Update, reply func(text string)) {
+func reply(message *tgbotapi.Message, bot *tgbotapi.BotAPI) func(text string) {
+	return func(text string) {
+		msg := tgbotapi.NewMessage(message.Chat.ID, text)
+		msg.ReplyToMessageID = message.MessageID
+
+		bot.Send(msg)
+	}
+}
+
+func CMDStart(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
+	reply := reply(update.Message, bot)
 	// check if user exists
 	if u, err := user.Get(context.Background(), update.Message.From.ID); err == nil {
 		reply("Welcome back " + u.Username)
@@ -33,7 +43,8 @@ func CMDStart(update tgbotapi.Update, reply func(text string)) {
 	return
 }
 
-func CMDSync(update tgbotapi.Update, reply func(text string)) {
+func CMDSync(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
+	reply := reply(update.Message, bot)
 	if err := SyncFromDB(); err != nil {
 		log.Printf("Error syncing from db: %v", err)
 
@@ -42,7 +53,8 @@ func CMDSync(update tgbotapi.Update, reply func(text string)) {
 	reply("Sync from db done")
 }
 
-func CMDOp(update tgbotapi.Update, reply func(text string)) {
+func CMDOp(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
+	reply := reply(update.Message, bot)
 	if !user.IsAdmin(context.Background(), update.Message.From.ID) {
 		reply("You are not an admin")
 		return
@@ -63,7 +75,8 @@ func CMDOp(update tgbotapi.Update, reply func(text string)) {
 	reply("Set admin for " + part[1])
 }
 
-func CMDDeop(update tgbotapi.Update, reply func(text string)) {
+func CMDDeop(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
+	reply := reply(update.Message, bot)
 	if !user.IsAdmin(context.Background(), update.Message.From.ID) {
 		reply("You are not an admin")
 		return
@@ -84,7 +97,8 @@ func CMDDeop(update tgbotapi.Update, reply func(text string)) {
 	reply("Deop for " + part[1])
 }
 
-func ShortURL(update tgbotapi.Update, reply func(text string)) {
+func ShortURL(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
+	reply := reply(update.Message, bot)
 	u, err := user.Get(context.Background(), update.Message.From.ID)
 	if err != nil {
 		reply("Please /start first")
@@ -159,28 +173,21 @@ func tgBot(token string) error {
 			continue
 		}
 
-		reply := func(text string) {
-			msg := tgbotapi.NewMessage(update.Message.Chat.ID, text)
-			msg.ReplyToMessageID = update.Message.MessageID
-
-			bot.Send(msg)
-		}
-
 		if update.Message.IsCommand() {
 			switch update.Message.Command() {
 			case "start":
-				CMDStart(update, reply)
+				CMDStart(update, bot)
 			case "sync":
-				CMDSync(update, reply)
+				CMDSync(update, bot)
 			case "op":
-				CMDOp(update, reply)
+				CMDOp(update, bot)
 			case "deop":
-				CMDDeop(update, reply)
+				CMDDeop(update, bot)
 			default:
-				reply("I don't know that command")
+				reply(update.Message, bot)("I don't know that command")
 			}
 		} else {
-			ShortURL(update, reply)
+			ShortURL(update, bot)
 		}
 	}
 
