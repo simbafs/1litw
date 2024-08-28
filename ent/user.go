@@ -19,7 +19,7 @@ type User struct {
 	// Username holds the value of the "username" field.
 	Username string `json:"username,omitempty"`
 	// Tgid holds the value of the "tgid" field.
-	Tgid int `json:"tgid,omitempty"`
+	Tgid int64 `json:"tgid,omitempty"`
 	// If the user can use custom code
 	CustomCode bool `json:"customCode,omitempty"`
 	// if the user can read, delete and modify all records
@@ -92,7 +92,7 @@ func (u *User) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field tgid", values[i])
 			} else if value.Valid {
-				u.Tgid = int(value.Int64)
+				u.Tgid = value.Int64
 			}
 		case user.FieldCustomCode:
 			if value, ok := values[i].(*sql.NullBool); !ok {

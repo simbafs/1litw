@@ -537,8 +537,8 @@ type UserMutation struct {
 	typ            string
 	id             *int
 	username       *string
-	tgid           *int
-	addtgid        *int
+	tgid           *int64
+	addtgid        *int64
 	customCode     *bool
 	admin          *bool
 	readAll        *bool
@@ -686,13 +686,13 @@ func (m *UserMutation) ResetUsername() {
 }
 
 // SetTgid sets the "tgid" field.
-func (m *UserMutation) SetTgid(i int) {
+func (m *UserMutation) SetTgid(i int64) {
 	m.tgid = &i
 	m.addtgid = nil
 }
 
 // Tgid returns the value of the "tgid" field in the mutation.
-func (m *UserMutation) Tgid() (r int, exists bool) {
+func (m *UserMutation) Tgid() (r int64, exists bool) {
 	v := m.tgid
 	if v == nil {
 		return
@@ -703,7 +703,7 @@ func (m *UserMutation) Tgid() (r int, exists bool) {
 // OldTgid returns the old "tgid" field's value of the User entity.
 // If the User object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserMutation) OldTgid(ctx context.Context) (v int, err error) {
+func (m *UserMutation) OldTgid(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldTgid is only allowed on UpdateOne operations")
 	}
@@ -718,7 +718,7 @@ func (m *UserMutation) OldTgid(ctx context.Context) (v int, err error) {
 }
 
 // AddTgid adds i to the "tgid" field.
-func (m *UserMutation) AddTgid(i int) {
+func (m *UserMutation) AddTgid(i int64) {
 	if m.addtgid != nil {
 		*m.addtgid += i
 	} else {
@@ -727,7 +727,7 @@ func (m *UserMutation) AddTgid(i int) {
 }
 
 // AddedTgid returns the value that was added to the "tgid" field in this mutation.
-func (m *UserMutation) AddedTgid() (r int, exists bool) {
+func (m *UserMutation) AddedTgid() (r int64, exists bool) {
 	v := m.addtgid
 	if v == nil {
 		return
@@ -1007,7 +1007,7 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		m.SetUsername(v)
 		return nil
 	case user.FieldTgid:
-		v, ok := value.(int)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -1065,7 +1065,7 @@ func (m *UserMutation) AddedField(name string) (ent.Value, bool) {
 func (m *UserMutation) AddField(name string, value ent.Value) error {
 	switch name {
 	case user.FieldTgid:
-		v, ok := value.(int)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

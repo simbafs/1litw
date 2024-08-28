@@ -25,12 +25,12 @@ func reply(message *tgbotapi.Message, bot *tgbotapi.BotAPI) func(text string) {
 }
 
 func cmdStart(b *gotgbot.Bot, ctx *ext.Context) error {
-	if u, err := user.Get(context.Background(), int(ctx.Message.From.Id)); err == nil {
+	if u, err := user.Get(context.Background(), ctx.Message.From.Id); err == nil {
 		ctx.EffectiveMessage.Reply(b, fmt.Sprintf("Welcome back %s", u.Username), nil)
 		return nil
 	}
 
-	if _, err := user.Add(context.Background(), ctx.Message.From.Username, int(ctx.Message.From.Id)); err != nil {
+	if _, err := user.Add(context.Background(), ctx.Message.From.Username, ctx.Message.From.Id); err != nil {
 		log.Printf("Error adding user: %v", err)
 		ctx.EffectiveMessage.Reply(b, "Error adding user, try /start again later", nil)
 	}
@@ -51,59 +51,14 @@ func cmdSync(b *gotgbot.Bot, ctx *ext.Context) error {
 	return nil
 }
 
-func CMDOp(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
-	reply := reply(update.Message, bot)
-	if !user.IsAdmin(context.Background(), update.Message.From.ID) {
-		reply("You are not an admin")
-		return
-	}
-
-	part := strings.SplitN(update.Message.Text, " ", 2)
-	if len(part) != 2 {
-		reply("Usage: /op <username>")
-		return
-	}
-
-	if _, err := user.Op(context.Background(), part[1]); err != nil {
-		log.Printf("Error setting admin: %v", err)
-		reply("Error setting admin")
-		return
-	}
-
-	reply("Set admin for " + part[1])
-}
-
-func CMDDeop(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
-	reply := reply(update.Message, bot)
-	if !user.IsAdmin(context.Background(), update.Message.From.ID) {
-		reply("You are not an admin")
-		return
-	}
-
-	part := strings.SplitN(update.Message.Text, " ", 2)
-	if len(part) != 2 {
-		reply("Usage: /deop <username>")
-		return
-	}
-
-	if _, err := user.Deop(context.Background(), part[1]); err != nil {
-		log.Printf("Error setting admin: %v", err)
-		reply("Error setting admin")
-		return
-	}
-
-	reply("Deop for " + part[1])
-}
-
-func ShortURL(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
-	reply := reply(update.Message, bot)
-	u, err := user.Get(context.Background(), update.Message.From.ID)
+func shortURL(b *gotgbot.Bot, ctx *ext.Context) error {
+	u, err := user.Get(context.Background(), ctx.Message.From.Id)
 	if err != nil {
-		reply("Please /start first")
-		return
+		ctx.EffectiveMessage.Reply(b, "Please /start first", nil)
+		return nil
 	}
 
-	part := strings.SplitN(update.Message.Text, " ", 2)
+	part := strings.SplitN(ctx.Message.Text, " ", 2)
 	target := ""
 	code := ""
 	if len(part) == 1 {
@@ -114,39 +69,40 @@ func ShortURL(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
 			code = part[0]
 			target = part[1]
 		} else {
-			reply("You are not allowed to use custom code")
-			return
+			ctx.EffectiveMessage.Reply(b, "You are not allowed to use custom code", nil)
+			return nil
 		}
 	}
 
 	if !util.IsValidURL(target) {
-		reply("Target is not a valid URL")
-		return
+		ctx.EffectiveMessage.Reply(b, "Target is not a valid URL", nil)
+		return nil
 	}
 
-	log.Printf("[%s] %s -> %s\n", update.Message.From.UserName, code, target)
+	log.Printf("[%s] %s -> %s\n", ctx.Message.From.Username, code, target)
 
 	// check is code exists
 	if exists, err := record.Exists(context.Background(), code); err != nil {
 		log.Printf("Error checking record: %v", err)
-		reply("Error checking record")
-		return
+		ctx.EffectiveMessage.Reply(b, "Error checking record", nil)
+		return nil
 	} else if exists {
-		reply("Code already exists")
-		return
+		ctx.EffectiveMessage.Reply(b, "Code already exists", nil)
+		return nil
 	}
 
-	rec, err := record.Add(context.Background(), code, target, update.Message.From.ID)
+	rec, err := record.Add(context.Background(), code, target, ctx.Message.From.Id)
 	if err != nil {
 		log.Printf("Error adding record: %v", err)
 
-		reply("Error adding record")
-		return
+		ctx.EffectiveMessage.Reply(b, "Error adding record", nil)
+		return nil
 	}
 
 	if err := ssg.StaticGenOne(rec); err != nil {
 		log.Printf("Error generating static: %v", err)
 	}
 
-	reply(fmt.Sprintf("Add a record %s -> %s", code, target))
+	ctx.EffectiveMessage.Reply(b, fmt.Sprintf("Add a record %s -> %s", code, target), nil)
+	return nil
 }

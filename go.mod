@@ -4,13 +4,13 @@ go 1.22.4
 
 require (
 	entgo.io/ent v0.14.0
+	github.com/PaulSonOfLars/gotgbot/v2 v2.0.0-rc.29
 	github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible
 	modernc.org/sqlite v1.32.0
 )
 
 require (
 	ariga.io/atlas v0.19.1-0.20240203083654-5948b60a8e43 // indirect
-	github.com/PaulSonOfLars/gotgbot/v2 v2.0.0-rc.29 // indirect
 	github.com/agext/levenshtein v1.2.1 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect

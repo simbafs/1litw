@@ -27,7 +27,7 @@ func (uc *UserCreate) SetUsername(s string) *UserCreate {
 }
 
 // SetTgid sets the "tgid" field.
-func (uc *UserCreate) SetTgid(i int) *UserCreate {
+func (uc *UserCreate) SetTgid(i int64) *UserCreate {
 	uc.mutation.SetTgid(i)
 	return uc
 }
@@ -191,7 +191,7 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		_node.Username = value
 	}
 	if value, ok := uc.mutation.Tgid(); ok {
-		_spec.SetField(user.FieldTgid, field.TypeInt, value)
+		_spec.SetField(user.FieldTgid, field.TypeInt64, value)
 		_node.Tgid = value
 	}
 	if value, ok := uc.mutation.CustomCode(); ok {

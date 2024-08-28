@@ -60,7 +60,7 @@ func Username(v string) predicate.User {
 }
 
 // Tgid applies equality check predicate on the "tgid" field. It's identical to TgidEQ.
-func Tgid(v int) predicate.User {
+func Tgid(v int64) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldTgid, v))
 }
 
@@ -145,42 +145,42 @@ func UsernameContainsFold(v string) predicate.User {
 }
 
 // TgidEQ applies the EQ predicate on the "tgid" field.
-func TgidEQ(v int) predicate.User {
+func TgidEQ(v int64) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldTgid, v))
 }
 
 // TgidNEQ applies the NEQ predicate on the "tgid" field.
-func TgidNEQ(v int) predicate.User {
+func TgidNEQ(v int64) predicate.User {
 	return predicate.User(sql.FieldNEQ(FieldTgid, v))
 }
 
 // TgidIn applies the In predicate on the "tgid" field.
-func TgidIn(vs ...int) predicate.User {
+func TgidIn(vs ...int64) predicate.User {
 	return predicate.User(sql.FieldIn(FieldTgid, vs...))
 }
 
 // TgidNotIn applies the NotIn predicate on the "tgid" field.
-func TgidNotIn(vs ...int) predicate.User {
+func TgidNotIn(vs ...int64) predicate.User {
 	return predicate.User(sql.FieldNotIn(FieldTgid, vs...))
 }
 
 // TgidGT applies the GT predicate on the "tgid" field.
-func TgidGT(v int) predicate.User {
+func TgidGT(v int64) predicate.User {
 	return predicate.User(sql.FieldGT(FieldTgid, v))
 }
 
 // TgidGTE applies the GTE predicate on the "tgid" field.
-func TgidGTE(v int) predicate.User {
+func TgidGTE(v int64) predicate.User {
 	return predicate.User(sql.FieldGTE(FieldTgid, v))
 }
 
 // TgidLT applies the LT predicate on the "tgid" field.
-func TgidLT(v int) predicate.User {
+func TgidLT(v int64) predicate.User {
 	return predicate.User(sql.FieldLT(FieldTgid, v))
 }
 
 // TgidLTE applies the LTE predicate on the "tgid" field.
-func TgidLTE(v int) predicate.User {
+func TgidLTE(v int64) predicate.User {
 	return predicate.User(sql.FieldLTE(FieldTgid, v))
 }
 

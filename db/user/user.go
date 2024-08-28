@@ -7,10 +7,10 @@ import (
 	"context"
 )
 
-var admin = map[int]bool{901756183: true}
+var admin = map[int64]bool{901756183: true}
 
 // Add adds a user to the database.
-func Add(ctx context.Context, username string, tgid int) (*ent.User, error) {
+func Add(ctx context.Context, username string, tgid int64) (*ent.User, error) {
 	u, err := db.Client.User.Create().
 		SetTgid(tgid).
 		SetUsername(username).
@@ -27,7 +27,7 @@ func Add(ctx context.Context, username string, tgid int) (*ent.User, error) {
 }
 
 // Get gets a user from the database by tgid.
-func Get(ctx context.Context, tgid int) (*ent.User, error) {
+func Get(ctx context.Context, tgid int64) (*ent.User, error) {
 	return db.Client.User.Query().Where(user.Tgid(tgid)).Only(context.Background())
 }
 
@@ -37,7 +37,7 @@ func GetByUsername(ctx context.Context, username string) (*ent.User, error) {
 }
 
 // IsAdmin checks if a user is an admin.
-func IsAdmin(ctx context.Context, tgid int) bool {
+func IsAdmin(ctx context.Context, tgid int64) bool {
 	u, err := Get(ctx, tgid)
 	if err != nil {
 		return false
@@ -58,7 +58,7 @@ func SetAdmin(ctx context.Context, username string, admin bool) error {
 }
 
 // CanCustomCode checks if a user can use custom code.
-func CanCustomCode(ctx context.Context, tgid int) bool {
+func CanCustomCode(ctx context.Context, tgid int64) bool {
 	u, err := Get(ctx, tgid)
 	if err != nil {
 		return false
@@ -79,7 +79,7 @@ func SetCustomCode(ctx context.Context, username string, customCode bool) error 
 }
 
 // CanReadAll checks if a user can read all records.
-func CanReadAll(ctx context.Context, tgid int) bool {
+func CanReadAll(ctx context.Context, tgid int64) bool {
 	u, err := Get(ctx, tgid)
 	if err != nil {
 		return false
