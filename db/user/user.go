@@ -5,6 +5,8 @@ import (
 	"1li/ent"
 	"1li/ent/user"
 	"context"
+	"errors"
+	"fmt"
 )
 
 var admin = map[int64]bool{901756183: true}
@@ -20,7 +22,9 @@ func Add(ctx context.Context, username string, tgid int64) (*ent.User, error) {
 	}
 
 	if isAdmin, ok := admin[tgid]; ok && isAdmin {
-		return Op(ctx, username)
+		SetPerm(context.Background(), tgid, "admin", true)
+		SetPerm(context.Background(), tgid, "readAll", true)
+		SetPerm(context.Background(), tgid, "customCode", true)
 	}
 
 	return u, nil
@@ -36,92 +40,48 @@ func GetByUsername(ctx context.Context, username string) (*ent.User, error) {
 	return db.Client.User.Query().Where(user.Username(username)).Only(context.Background())
 }
 
-// IsAdmin checks if a user is an admin.
-func IsAdmin(ctx context.Context, tgid int64) bool {
-	u, err := Get(ctx, tgid)
+var ErrUnknownPerm = errors.New("unknown permission")
+
+func GetPerm(ctx context.Context, userid int64, perm string) (bool, error) {
+	user, err := db.Client.User.Query().Where(user.Tgid(userid)).Only(ctx)
 	if err != nil {
-		return false
+		return false, fmt.Errorf("failed to get user: %w", err)
 	}
 
-	return u.Admin
+	switch perm {
+	case "customCode":
+		return user.CustomCode, nil
+	case "admin":
+		return user.Admin, nil
+	case "readAll":
+		return user.ReadAll, nil
+	default:
+		return false, ErrUnknownPerm
+	}
 }
 
-// SetAdmin sets a user as an admin.
-func SetAdmin(ctx context.Context, username string, admin bool) error {
-	u, err := GetByUsername(ctx, username)
+func SetPerm(ctx context.Context, userid int64, perm string, value bool) error {
+	// TODO: batch operation
+	user, err := db.Client.User.Query().Where(user.Tgid(userid)).Only(ctx)
+	// TODO: process user not found here
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get user: %w", err)
 	}
 
-	_, err = db.Client.User.UpdateOneID(u.ID).SetAdmin(admin).Save(ctx)
-	return err
-}
-
-// CanCustomCode checks if a user can use custom code.
-func CanCustomCode(ctx context.Context, tgid int64) bool {
-	u, err := Get(ctx, tgid)
-	if err != nil {
-		return false
+	switch perm {
+	case "customCode":
+		_, err = user.Update().SetCustomCode(value).Save(ctx)
+	case "admin":
+		_, err = user.Update().SetAdmin(value).Save(ctx)
+	case "readAll":
+		_, err = user.Update().SetReadAll(value).Save(ctx)
+	default:
+		return ErrUnknownPerm
 	}
 
-	return u.CustomCode
-}
-
-// SetCustomCode sets if a user can use custom code.
-func SetCustomCode(ctx context.Context, username string, customCode bool) error {
-	u, err := GetByUsername(ctx, username)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to update user: %w", err)
 	}
 
-	_, err = db.Client.User.UpdateOneID(u.ID).SetCustomCode(customCode).Save(ctx)
-	return err
-}
-
-// CanReadAll checks if a user can read all records.
-func CanReadAll(ctx context.Context, tgid int64) bool {
-	u, err := Get(ctx, tgid)
-	if err != nil {
-		return false
-	}
-	return u.ReadAll
-}
-
-// SetReadAll sets if a user can read all records.
-func SetReadAll(ctx context.Context, username string, readAll bool) error {
-	u, err := GetByUsername(ctx, username)
-	if err != nil {
-		return err
-	}
-
-	_, err = db.Client.User.UpdateOneID(u.ID).SetReadAll(readAll).Save(ctx)
-	return err
-}
-
-// Op sets a user as an admin.
-func Op(ctx context.Context, username string) (*ent.User, error) {
-	u, err := GetByUsername(ctx, username)
-	if err != nil {
-		return nil, err
-	}
-
-	return u.Update().
-		SetAdmin(true).
-		SetCustomCode(true).
-		SetReadAll(true).
-		Save(ctx)
-}
-
-// Deop sets a user as a normal user.
-func Deop(ctx context.Context, username string) (*ent.User, error) {
-	u, err := GetByUsername(ctx, username)
-	if err != nil {
-		return nil, err
-	}
-
-	return u.Update().
-		SetAdmin(false).
-		SetCustomCode(false).
-		SetReadAll(false).
-		Save(ctx)
+	return nil
 }
