@@ -80,6 +80,14 @@ func isUserShared(msg *gotgbot.Message) bool {
 }
 
 func (c *client) resPerm(b *gotgbot.Bot, ctx *ext.Context) error {
+	if _, err := user.GetPerm(context.Background(), ctx.Message.UsersShared.Users[0].UserId, "superAdmin"); ent.IsNotFound(err) {
+		ctx.EffectiveChat.SendMessage(b, "查無使用者", nil)
+		return c.resExit(b, ctx)
+	} else if err != nil {
+		ctx.EffectiveChat.SendMessage(b, "查詢使用時發生錯誤", nil)
+		return err
+	}
+
 	c.set(ctx, data{
 		Username: ctx.Message.UsersShared.Users[0].Username,
 		UserId:   ctx.Message.UsersShared.Users[0].UserId,
@@ -142,8 +150,6 @@ func (c *client) resSetPerm(b *gotgbot.Bot, ctx *ext.Context) error {
 	value, _ = strings.CutPrefix(value, ASK_VALUE)
 	d.Value = value == "true"
 
-	log.Println(d, ctx.CallbackQuery.Data, value, value == "true")
-
 	_, err = user.Get(context.Background(), d.UserId)
 	if ent.IsNotFound(err) {
 		ctx.EffectiveChat.SendMessage(b, "使用者不存在", nil)
@@ -186,7 +192,6 @@ func (c *client) resExit(b *gotgbot.Bot, ctx *ext.Context) error {
 		}
 	}
 
-	log.Println("Exit")
 	c.del(ctx)
 	_, err := ctx.EffectiveMessage.Reply(b, "已退出設定", clearKeyboard)
 	if err != nil {

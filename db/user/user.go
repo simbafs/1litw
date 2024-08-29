@@ -68,7 +68,7 @@ func Op(ctx context.Context, userid int64, value bool) error {
 	err.Add(SetPerm(ctx, userid, "create", value))
 	err.Add(SetPerm(ctx, userid, "customCode", value))
 
-	return err
+	return err.Join()
 }
 
 func SetPerm(ctx context.Context, userid int64, perm string, value bool) error {

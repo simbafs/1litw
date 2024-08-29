@@ -54,8 +54,5 @@ func SyncFromDB() error {
 	wg.Wait()
 
 	log.Println("sync done", err)
-	if errs.IsEmpty() {
-		return nil
-	}
-	return errs
+	return errs.Join()
 }

@@ -39,3 +39,7 @@ func (ec *ErrorCollector) Error() string {
 func (ec *ErrorCollector) IsEmpty() bool {
 	return len(ec.errs) == 0
 }
+
+func (ec *ErrorCollector) Join() error {
+	return errors.Join(ec.errs...)
+}
