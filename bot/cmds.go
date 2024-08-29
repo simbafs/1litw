@@ -12,17 +12,7 @@ import (
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
-
-func reply(message *tgbotapi.Message, bot *tgbotapi.BotAPI) func(text string) {
-	return func(text string) {
-		msg := tgbotapi.NewMessage(message.Chat.ID, text)
-		msg.ReplyToMessageID = message.MessageID
-
-		bot.Send(msg)
-	}
-}
 
 func cmdStart(b *gotgbot.Bot, ctx *ext.Context) error {
 	if u, err := user.Get(context.Background(), ctx.Message.From.Id); err == nil {
