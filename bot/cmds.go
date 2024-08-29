@@ -58,6 +58,15 @@ func shortURL(b *gotgbot.Bot, ctx *ext.Context) error {
 		return nil
 	}
 
+	if ok, err := user.GetPerm(context.Background(), ctx.EffectiveUser.Id, "create"); err != nil {
+		log.Printf("Error getting permission: %v", err)
+		ctx.EffectiveMessage.Reply(b, "查詢權限時發生錯誤", nil)
+		return nil
+	} else if !ok {
+		ctx.EffectiveMessage.Reply(b, "權限不足", nil)
+		return nil
+	}
+
 	part := strings.SplitN(ctx.Message.Text, " ", 2)
 	target := ""
 	code := ""
@@ -69,7 +78,7 @@ func shortURL(b *gotgbot.Bot, ctx *ext.Context) error {
 			code = part[0]
 			target = part[1]
 		} else {
-			ctx.EffectiveMessage.Reply(b, "You are not allowed to use custom code", nil)
+			ctx.EffectiveMessage.Reply(b, "你沒有權限自訂短網址", nil)
 			return nil
 		}
 	}

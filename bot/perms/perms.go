@@ -54,6 +54,17 @@ var CMD = handlers.NewConversation(
 // state: ask user
 
 func (c *client) resUser(b *gotgbot.Bot, ctx *ext.Context) error {
+	if ok, err := user.GetPerm(context.Background(), ctx.EffectiveUser.Id, "superAdmin"); ent.IsNotFound(err) {
+		ctx.EffectiveChat.SendMessage(b, "請先使用 /start", nil)
+		return c.resExit(b, ctx)
+	} else if err != nil {
+		ctx.EffectiveChat.SendMessage(b, "資料庫錯誤", nil)
+		return err
+	} else if !ok {
+		ctx.EffectiveChat.SendMessage(b, "權限不足", nil)
+		return c.resExit(b, ctx)
+	}
+
 	if err := askUser(b, ctx); err != nil {
 		return fmt.Errorf("Fail to ask user: %w", err)
 	}
@@ -84,8 +95,7 @@ func (c *client) resPerm(b *gotgbot.Bot, ctx *ext.Context) error {
 
 // isQueryPerm check if the callback query can be handled by this handler.
 func isQueryPerm(cq *gotgbot.CallbackQuery) bool {
-	perm, ok := strings.CutPrefix(cq.Data, ASK_PERM)
-	return ok && (perm == "customCode" || perm == "admin" || perm == "readAll")
+	return strings.HasPrefix(cq.Data, ASK_PERM)
 }
 
 func (c *client) resValue(b *gotgbot.Bot, ctx *ext.Context) error {
@@ -115,8 +125,7 @@ func (c *client) resValue(b *gotgbot.Bot, ctx *ext.Context) error {
 // state: set perm
 
 func isQueryValue(cq *gotgbot.CallbackQuery) bool {
-	value, ok := strings.CutPrefix(cq.Data, ASK_VALUE)
-	return ok && (value == "true" || value == "false")
+	return strings.HasPrefix(cq.Data, ASK_VALUE)
 }
 
 func (c *client) resSetPerm(b *gotgbot.Bot, ctx *ext.Context) error {
@@ -135,11 +144,18 @@ func (c *client) resSetPerm(b *gotgbot.Bot, ctx *ext.Context) error {
 
 	log.Println(d, ctx.CallbackQuery.Data, value, value == "true")
 
-	err = user.SetPerm(context.Background(), d.UserId, d.Perm, d.Value)
+	_, err = user.Get(context.Background(), d.UserId)
 	if ent.IsNotFound(err) {
 		ctx.EffectiveChat.SendMessage(b, "使用者不存在", nil)
 		return c.resExit(b, ctx)
-	} else if err != nil {
+	}
+
+	if d.Perm == "all" {
+		err = user.Op(context.Background(), d.UserId, d.Value)
+	} else {
+		err = user.SetPerm(context.Background(), d.UserId, d.Perm, d.Value)
+	}
+	if err != nil {
 		return fmt.Errorf("Fail to set perm: %w", err)
 	}
 
@@ -163,6 +179,13 @@ func isQueryCancel(cq *gotgbot.CallbackQuery) bool {
 }
 
 func (c *client) resExit(b *gotgbot.Bot, ctx *ext.Context) error {
+	if ctx.CallbackQuery != nil {
+		_, err := b.AnswerCallbackQuery(ctx.CallbackQuery.Id, nil)
+		if err != nil {
+			return fmt.Errorf("Fail to answer callback query: %w", err)
+		}
+	}
+
 	log.Println("Exit")
 	c.del(ctx)
 	_, err := ctx.EffectiveMessage.Reply(b, "已退出設定", clearKeyboard)
@@ -205,6 +228,7 @@ func askUser(b *gotgbot.Bot, ctx *ext.Context) error {
 func askPerm(b *gotgbot.Bot, ctx *ext.Context) error {
 	keyboard := gotgbot.InlineKeyboardMarkup{
 		InlineKeyboard: [][]gotgbot.InlineKeyboardButton{
+			// TODO: rearrange buttons
 			{
 				{
 					Text:         "自訂短網址",
@@ -215,12 +239,20 @@ func askPerm(b *gotgbot.Bot, ctx *ext.Context) error {
 				},
 			}, {
 				{
-					Text:         "查看所有人的短資訊",
+					Text:         "查看所有資訊",
 					CallbackData: ASK_PERM + "readAll",
+				}, {
+					Text:         "建立",
+					CallbackData: ASK_PERM + "create",
 				},
 			}, {
 				{
-					Text:         "取消",
+					Text:         "全部",
+					CallbackData: ASK_PERM + "all",
+				},
+			}, {
+				{
+					Text:         "離開",
 					CallbackData: "cancel",
 				},
 			},
@@ -258,7 +290,7 @@ func askValue(b *gotgbot.Bot, ctx *ext.Context, perm string) error {
 				},
 			}, {
 				{
-					Text:         "取消",
+					Text:         "離開",
 					CallbackData: "cancel",
 				},
 			},

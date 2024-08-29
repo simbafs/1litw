@@ -12,7 +12,7 @@ import (
 // Add adds a record to the database.
 func Add(ctx context.Context, code string, target string, userid int64) (*ent.Record, error) {
 	user, err := db.Client.User.Query().
-		Where(user.Tgid(userid)).
+		Where(user.Userid(userid)).
 		Only(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("get user: %w", err)

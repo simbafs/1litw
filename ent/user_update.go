@@ -42,16 +42,16 @@ func (uu *UserUpdate) SetNillableUsername(s *string) *UserUpdate {
 	return uu
 }
 
-// SetCustomCode sets the "customCode" field.
-func (uu *UserUpdate) SetCustomCode(b bool) *UserUpdate {
-	uu.mutation.SetCustomCode(b)
+// SetSuperAdmin sets the "superAdmin" field.
+func (uu *UserUpdate) SetSuperAdmin(b bool) *UserUpdate {
+	uu.mutation.SetSuperAdmin(b)
 	return uu
 }
 
-// SetNillableCustomCode sets the "customCode" field if the given value is not nil.
-func (uu *UserUpdate) SetNillableCustomCode(b *bool) *UserUpdate {
+// SetNillableSuperAdmin sets the "superAdmin" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableSuperAdmin(b *bool) *UserUpdate {
 	if b != nil {
-		uu.SetCustomCode(*b)
+		uu.SetSuperAdmin(*b)
 	}
 	return uu
 }
@@ -70,16 +70,30 @@ func (uu *UserUpdate) SetNillableAdmin(b *bool) *UserUpdate {
 	return uu
 }
 
-// SetReadAll sets the "readAll" field.
-func (uu *UserUpdate) SetReadAll(b bool) *UserUpdate {
-	uu.mutation.SetReadAll(b)
+// SetCreate sets the "create" field.
+func (uu *UserUpdate) SetCreate(b bool) *UserUpdate {
+	uu.mutation.SetCreate(b)
 	return uu
 }
 
-// SetNillableReadAll sets the "readAll" field if the given value is not nil.
-func (uu *UserUpdate) SetNillableReadAll(b *bool) *UserUpdate {
+// SetNillableCreate sets the "create" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableCreate(b *bool) *UserUpdate {
 	if b != nil {
-		uu.SetReadAll(*b)
+		uu.SetCreate(*b)
+	}
+	return uu
+}
+
+// SetCustomCode sets the "customCode" field.
+func (uu *UserUpdate) SetCustomCode(b bool) *UserUpdate {
+	uu.mutation.SetCustomCode(b)
+	return uu
+}
+
+// SetNillableCustomCode sets the "customCode" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableCustomCode(b *bool) *UserUpdate {
+	if b != nil {
+		uu.SetCustomCode(*b)
 	}
 	return uu
 }
@@ -177,14 +191,17 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := uu.mutation.Username(); ok {
 		_spec.SetField(user.FieldUsername, field.TypeString, value)
 	}
-	if value, ok := uu.mutation.CustomCode(); ok {
-		_spec.SetField(user.FieldCustomCode, field.TypeBool, value)
+	if value, ok := uu.mutation.SuperAdmin(); ok {
+		_spec.SetField(user.FieldSuperAdmin, field.TypeBool, value)
 	}
 	if value, ok := uu.mutation.Admin(); ok {
 		_spec.SetField(user.FieldAdmin, field.TypeBool, value)
 	}
-	if value, ok := uu.mutation.ReadAll(); ok {
-		_spec.SetField(user.FieldReadAll, field.TypeBool, value)
+	if value, ok := uu.mutation.Create(); ok {
+		_spec.SetField(user.FieldCreate, field.TypeBool, value)
+	}
+	if value, ok := uu.mutation.CustomCode(); ok {
+		_spec.SetField(user.FieldCustomCode, field.TypeBool, value)
 	}
 	if uu.mutation.RecordsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -265,16 +282,16 @@ func (uuo *UserUpdateOne) SetNillableUsername(s *string) *UserUpdateOne {
 	return uuo
 }
 
-// SetCustomCode sets the "customCode" field.
-func (uuo *UserUpdateOne) SetCustomCode(b bool) *UserUpdateOne {
-	uuo.mutation.SetCustomCode(b)
+// SetSuperAdmin sets the "superAdmin" field.
+func (uuo *UserUpdateOne) SetSuperAdmin(b bool) *UserUpdateOne {
+	uuo.mutation.SetSuperAdmin(b)
 	return uuo
 }
 
-// SetNillableCustomCode sets the "customCode" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableCustomCode(b *bool) *UserUpdateOne {
+// SetNillableSuperAdmin sets the "superAdmin" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableSuperAdmin(b *bool) *UserUpdateOne {
 	if b != nil {
-		uuo.SetCustomCode(*b)
+		uuo.SetSuperAdmin(*b)
 	}
 	return uuo
 }
@@ -293,16 +310,30 @@ func (uuo *UserUpdateOne) SetNillableAdmin(b *bool) *UserUpdateOne {
 	return uuo
 }
 
-// SetReadAll sets the "readAll" field.
-func (uuo *UserUpdateOne) SetReadAll(b bool) *UserUpdateOne {
-	uuo.mutation.SetReadAll(b)
+// SetCreate sets the "create" field.
+func (uuo *UserUpdateOne) SetCreate(b bool) *UserUpdateOne {
+	uuo.mutation.SetCreate(b)
 	return uuo
 }
 
-// SetNillableReadAll sets the "readAll" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableReadAll(b *bool) *UserUpdateOne {
+// SetNillableCreate sets the "create" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableCreate(b *bool) *UserUpdateOne {
 	if b != nil {
-		uuo.SetReadAll(*b)
+		uuo.SetCreate(*b)
+	}
+	return uuo
+}
+
+// SetCustomCode sets the "customCode" field.
+func (uuo *UserUpdateOne) SetCustomCode(b bool) *UserUpdateOne {
+	uuo.mutation.SetCustomCode(b)
+	return uuo
+}
+
+// SetNillableCustomCode sets the "customCode" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableCustomCode(b *bool) *UserUpdateOne {
+	if b != nil {
+		uuo.SetCustomCode(*b)
 	}
 	return uuo
 }
@@ -430,14 +461,17 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	if value, ok := uuo.mutation.Username(); ok {
 		_spec.SetField(user.FieldUsername, field.TypeString, value)
 	}
-	if value, ok := uuo.mutation.CustomCode(); ok {
-		_spec.SetField(user.FieldCustomCode, field.TypeBool, value)
+	if value, ok := uuo.mutation.SuperAdmin(); ok {
+		_spec.SetField(user.FieldSuperAdmin, field.TypeBool, value)
 	}
 	if value, ok := uuo.mutation.Admin(); ok {
 		_spec.SetField(user.FieldAdmin, field.TypeBool, value)
 	}
-	if value, ok := uuo.mutation.ReadAll(); ok {
-		_spec.SetField(user.FieldReadAll, field.TypeBool, value)
+	if value, ok := uuo.mutation.Create(); ok {
+		_spec.SetField(user.FieldCreate, field.TypeBool, value)
+	}
+	if value, ok := uuo.mutation.CustomCode(); ok {
+		_spec.SetField(user.FieldCustomCode, field.TypeBool, value)
 	}
 	if uuo.mutation.RecordsCleared() {
 		edge := &sqlgraph.EdgeSpec{
