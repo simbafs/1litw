@@ -30,8 +30,8 @@ func cmdStart(b *gotgbot.Bot, ctx *ext.Context) error {
 	return nil
 }
 
-func (fs *fs) cmdSync(b *gotgbot.Bot, ctx *ext.Context) error {
-	if err := ssg.SyncFromDB(fs.w); err != nil {
+func (bot *bot) cmdSync(b *gotgbot.Bot, ctx *ext.Context) error {
+	if err := ssg.SyncFromDB(bot.w); err != nil {
 		log.Printf("Error syncing from db: %v", err)
 
 		ctx.EffectiveMessage.Reply(b, "Error syncing from db", nil)
@@ -41,7 +41,7 @@ func (fs *fs) cmdSync(b *gotgbot.Bot, ctx *ext.Context) error {
 	return nil
 }
 
-func (fs *fs) shortURL(b *gotgbot.Bot, ctx *ext.Context) error {
+func (bot *bot) shortURL(b *gotgbot.Bot, ctx *ext.Context) error {
 	u, err := user.Get(context.Background(), ctx.Message.From.Id)
 	if err != nil {
 		ctx.EffectiveMessage.Reply(b, "Please /start first", nil)
@@ -74,7 +74,7 @@ func (fs *fs) shortURL(b *gotgbot.Bot, ctx *ext.Context) error {
 	}
 
 	if !util.IsValidURL(target) {
-		ctx.EffectiveMessage.Reply(b, "Target is not a valid URL", nil)
+		ctx.EffectiveMessage.Reply(b, "無效的網址", nil)
 		return nil
 	}
 
@@ -83,10 +83,10 @@ func (fs *fs) shortURL(b *gotgbot.Bot, ctx *ext.Context) error {
 	// check is code exists
 	if exists, err := record.Exists(context.Background(), code); err != nil {
 		log.Printf("Error checking record: %v", err)
-		ctx.EffectiveMessage.Reply(b, "Error checking record", nil)
+		ctx.EffectiveMessage.Reply(b, "資料庫錯誤", nil)
 		return nil
 	} else if exists {
-		ctx.EffectiveMessage.Reply(b, "Code already exists", nil)
+		ctx.EffectiveMessage.Reply(b, "短網址已存在", nil)
 		return nil
 	}
 
@@ -94,14 +94,14 @@ func (fs *fs) shortURL(b *gotgbot.Bot, ctx *ext.Context) error {
 	if err != nil {
 		log.Printf("Error adding record: %v", err)
 
-		ctx.EffectiveMessage.Reply(b, "Error adding record", nil)
+		ctx.EffectiveMessage.Reply(b, "資料庫錯誤", nil)
 		return nil
 	}
 
-	if err := ssg.StaticGenOne(rec, fs.w.CD(rec.Code+"/index.html")); err != nil {
+	if err := ssg.StaticGenOne(rec, bot.w.CD(rec.Code+"/index.html")); err != nil {
 		log.Printf("Error generating static: %v", err)
 	}
 
-	ctx.EffectiveMessage.Reply(b, fmt.Sprintf("Add a record %s -> %s", code, target), nil)
+	ctx.EffectiveMessage.Reply(b, fmt.Sprintf("%s/%s -> %s", bot.Config.Origin, code, target), nil)
 	return nil
 }
