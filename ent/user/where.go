@@ -59,14 +59,14 @@ func Username(v string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldUsername, v))
 }
 
-// Tgid applies equality check predicate on the "tgid" field. It's identical to TgidEQ.
-func Tgid(v int) predicate.User {
-	return predicate.User(sql.FieldEQ(FieldTgid, v))
+// Userid applies equality check predicate on the "userid" field. It's identical to UseridEQ.
+func Userid(v int64) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldUserid, v))
 }
 
-// CustomCode applies equality check predicate on the "customCode" field. It's identical to CustomCodeEQ.
-func CustomCode(v bool) predicate.User {
-	return predicate.User(sql.FieldEQ(FieldCustomCode, v))
+// SuperAdmin applies equality check predicate on the "superAdmin" field. It's identical to SuperAdminEQ.
+func SuperAdmin(v bool) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldSuperAdmin, v))
 }
 
 // Admin applies equality check predicate on the "admin" field. It's identical to AdminEQ.
@@ -74,9 +74,14 @@ func Admin(v bool) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldAdmin, v))
 }
 
-// ReadAll applies equality check predicate on the "readAll" field. It's identical to ReadAllEQ.
-func ReadAll(v bool) predicate.User {
-	return predicate.User(sql.FieldEQ(FieldReadAll, v))
+// Create applies equality check predicate on the "create" field. It's identical to CreateEQ.
+func Create(v bool) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldCreate, v))
+}
+
+// CustomCode applies equality check predicate on the "customCode" field. It's identical to CustomCodeEQ.
+func CustomCode(v bool) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldCustomCode, v))
 }
 
 // UsernameEQ applies the EQ predicate on the "username" field.
@@ -144,54 +149,54 @@ func UsernameContainsFold(v string) predicate.User {
 	return predicate.User(sql.FieldContainsFold(FieldUsername, v))
 }
 
-// TgidEQ applies the EQ predicate on the "tgid" field.
-func TgidEQ(v int) predicate.User {
-	return predicate.User(sql.FieldEQ(FieldTgid, v))
+// UseridEQ applies the EQ predicate on the "userid" field.
+func UseridEQ(v int64) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldUserid, v))
 }
 
-// TgidNEQ applies the NEQ predicate on the "tgid" field.
-func TgidNEQ(v int) predicate.User {
-	return predicate.User(sql.FieldNEQ(FieldTgid, v))
+// UseridNEQ applies the NEQ predicate on the "userid" field.
+func UseridNEQ(v int64) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldUserid, v))
 }
 
-// TgidIn applies the In predicate on the "tgid" field.
-func TgidIn(vs ...int) predicate.User {
-	return predicate.User(sql.FieldIn(FieldTgid, vs...))
+// UseridIn applies the In predicate on the "userid" field.
+func UseridIn(vs ...int64) predicate.User {
+	return predicate.User(sql.FieldIn(FieldUserid, vs...))
 }
 
-// TgidNotIn applies the NotIn predicate on the "tgid" field.
-func TgidNotIn(vs ...int) predicate.User {
-	return predicate.User(sql.FieldNotIn(FieldTgid, vs...))
+// UseridNotIn applies the NotIn predicate on the "userid" field.
+func UseridNotIn(vs ...int64) predicate.User {
+	return predicate.User(sql.FieldNotIn(FieldUserid, vs...))
 }
 
-// TgidGT applies the GT predicate on the "tgid" field.
-func TgidGT(v int) predicate.User {
-	return predicate.User(sql.FieldGT(FieldTgid, v))
+// UseridGT applies the GT predicate on the "userid" field.
+func UseridGT(v int64) predicate.User {
+	return predicate.User(sql.FieldGT(FieldUserid, v))
 }
 
-// TgidGTE applies the GTE predicate on the "tgid" field.
-func TgidGTE(v int) predicate.User {
-	return predicate.User(sql.FieldGTE(FieldTgid, v))
+// UseridGTE applies the GTE predicate on the "userid" field.
+func UseridGTE(v int64) predicate.User {
+	return predicate.User(sql.FieldGTE(FieldUserid, v))
 }
 
-// TgidLT applies the LT predicate on the "tgid" field.
-func TgidLT(v int) predicate.User {
-	return predicate.User(sql.FieldLT(FieldTgid, v))
+// UseridLT applies the LT predicate on the "userid" field.
+func UseridLT(v int64) predicate.User {
+	return predicate.User(sql.FieldLT(FieldUserid, v))
 }
 
-// TgidLTE applies the LTE predicate on the "tgid" field.
-func TgidLTE(v int) predicate.User {
-	return predicate.User(sql.FieldLTE(FieldTgid, v))
+// UseridLTE applies the LTE predicate on the "userid" field.
+func UseridLTE(v int64) predicate.User {
+	return predicate.User(sql.FieldLTE(FieldUserid, v))
 }
 
-// CustomCodeEQ applies the EQ predicate on the "customCode" field.
-func CustomCodeEQ(v bool) predicate.User {
-	return predicate.User(sql.FieldEQ(FieldCustomCode, v))
+// SuperAdminEQ applies the EQ predicate on the "superAdmin" field.
+func SuperAdminEQ(v bool) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldSuperAdmin, v))
 }
 
-// CustomCodeNEQ applies the NEQ predicate on the "customCode" field.
-func CustomCodeNEQ(v bool) predicate.User {
-	return predicate.User(sql.FieldNEQ(FieldCustomCode, v))
+// SuperAdminNEQ applies the NEQ predicate on the "superAdmin" field.
+func SuperAdminNEQ(v bool) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldSuperAdmin, v))
 }
 
 // AdminEQ applies the EQ predicate on the "admin" field.
@@ -204,14 +209,24 @@ func AdminNEQ(v bool) predicate.User {
 	return predicate.User(sql.FieldNEQ(FieldAdmin, v))
 }
 
-// ReadAllEQ applies the EQ predicate on the "readAll" field.
-func ReadAllEQ(v bool) predicate.User {
-	return predicate.User(sql.FieldEQ(FieldReadAll, v))
+// CreateEQ applies the EQ predicate on the "create" field.
+func CreateEQ(v bool) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldCreate, v))
 }
 
-// ReadAllNEQ applies the NEQ predicate on the "readAll" field.
-func ReadAllNEQ(v bool) predicate.User {
-	return predicate.User(sql.FieldNEQ(FieldReadAll, v))
+// CreateNEQ applies the NEQ predicate on the "create" field.
+func CreateNEQ(v bool) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldCreate, v))
+}
+
+// CustomCodeEQ applies the EQ predicate on the "customCode" field.
+func CustomCodeEQ(v bool) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldCustomCode, v))
+}
+
+// CustomCodeNEQ applies the NEQ predicate on the "customCode" field.
+func CustomCodeNEQ(v bool) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldCustomCode, v))
 }
 
 // HasRecords applies the HasEdge predicate on the "records" edge.

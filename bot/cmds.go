@@ -10,100 +10,54 @@ import (
 	"log"
 	"strings"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 )
 
-func reply(message *tgbotapi.Message, bot *tgbotapi.BotAPI) func(text string) {
-	return func(text string) {
-		msg := tgbotapi.NewMessage(message.Chat.ID, text)
-		msg.ReplyToMessageID = message.MessageID
-
-		bot.Send(msg)
-	}
-}
-
-func CMDStart(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
-	reply := reply(update.Message, bot)
-	// check if user exists
-	if u, err := user.Get(context.Background(), update.Message.From.ID); err == nil {
-		reply("Welcome back " + u.Username)
-		return
+func cmdStart(b *gotgbot.Bot, ctx *ext.Context) error {
+	if u, err := user.Get(context.Background(), ctx.Message.From.Id); err == nil {
+		ctx.EffectiveMessage.Reply(b, fmt.Sprintf("Welcome back %s", u.Username), nil)
+		return nil
 	}
 
-	// create a new user
-	if _, err := user.Add(context.Background(), update.Message.From.UserName, update.Message.From.ID); err != nil {
+	if _, err := user.Add(context.Background(), ctx.Message.From.Username, ctx.Message.From.Id); err != nil {
 		log.Printf("Error adding user: %v", err)
-		reply("Error adding user, try /start again later")
+		ctx.EffectiveMessage.Reply(b, "Error adding user, try /start again later", nil)
 	}
 
-	reply("Welcome to 1li! " + update.Message.From.UserName)
+	ctx.EffectiveMessage.Reply(b, fmt.Sprintf("Welcome to 1li! %s", ctx.Message.From.Username), nil)
 
-	return
+	return nil
 }
 
-func CMDSync(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
-	reply := reply(update.Message, bot)
+func cmdSync(b *gotgbot.Bot, ctx *ext.Context) error {
 	if err := ssg.SyncFromDB(); err != nil {
 		log.Printf("Error syncing from db: %v", err)
 
-		reply("Error syncing from db")
+		ctx.EffectiveMessage.Reply(b, "Error syncing from db", nil)
+		return nil
 	}
-	reply("Sync from db done")
+	ctx.EffectiveMessage.Reply(b, "Sync from db done", nil)
+	return nil
 }
 
-func CMDOp(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
-	reply := reply(update.Message, bot)
-	if !user.IsAdmin(context.Background(), update.Message.From.ID) {
-		reply("You are not an admin")
-		return
-	}
-
-	part := strings.SplitN(update.Message.Text, " ", 2)
-	if len(part) != 2 {
-		reply("Usage: /op <username>")
-		return
-	}
-
-	if _, err := user.Op(context.Background(), part[1]); err != nil {
-		log.Printf("Error setting admin: %v", err)
-		reply("Error setting admin")
-		return
-	}
-
-	reply("Set admin for " + part[1])
-}
-
-func CMDDeop(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
-	reply := reply(update.Message, bot)
-	if !user.IsAdmin(context.Background(), update.Message.From.ID) {
-		reply("You are not an admin")
-		return
-	}
-
-	part := strings.SplitN(update.Message.Text, " ", 2)
-	if len(part) != 2 {
-		reply("Usage: /deop <username>")
-		return
-	}
-
-	if _, err := user.Deop(context.Background(), part[1]); err != nil {
-		log.Printf("Error setting admin: %v", err)
-		reply("Error setting admin")
-		return
-	}
-
-	reply("Deop for " + part[1])
-}
-
-func ShortURL(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
-	reply := reply(update.Message, bot)
-	u, err := user.Get(context.Background(), update.Message.From.ID)
+func shortURL(b *gotgbot.Bot, ctx *ext.Context) error {
+	u, err := user.Get(context.Background(), ctx.Message.From.Id)
 	if err != nil {
-		reply("Please /start first")
-		return
+		ctx.EffectiveMessage.Reply(b, "Please /start first", nil)
+		return nil
 	}
 
-	part := strings.SplitN(update.Message.Text, " ", 2)
+	if ok, err := user.GetPerm(context.Background(), ctx.EffectiveUser.Id, "create"); err != nil {
+		log.Printf("Error getting permission: %v", err)
+		ctx.EffectiveMessage.Reply(b, "查詢權限時發生錯誤", nil)
+		return nil
+	} else if !ok {
+		ctx.EffectiveMessage.Reply(b, "權限不足", nil)
+		return nil
+	}
+
+	part := strings.SplitN(ctx.Message.Text, " ", 2)
 	target := ""
 	code := ""
 	if len(part) == 1 {
@@ -114,39 +68,40 @@ func ShortURL(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
 			code = part[0]
 			target = part[1]
 		} else {
-			reply("You are not allowed to use custom code")
-			return
+			ctx.EffectiveMessage.Reply(b, "你沒有權限自訂短網址", nil)
+			return nil
 		}
 	}
 
 	if !util.IsValidURL(target) {
-		reply("Target is not a valid URL")
-		return
+		ctx.EffectiveMessage.Reply(b, "Target is not a valid URL", nil)
+		return nil
 	}
 
-	log.Printf("[%s] %s -> %s\n", update.Message.From.UserName, code, target)
+	log.Printf("[%s] %s -> %s\n", ctx.Message.From.Username, code, target)
 
 	// check is code exists
 	if exists, err := record.Exists(context.Background(), code); err != nil {
 		log.Printf("Error checking record: %v", err)
-		reply("Error checking record")
-		return
+		ctx.EffectiveMessage.Reply(b, "Error checking record", nil)
+		return nil
 	} else if exists {
-		reply("Code already exists")
-		return
+		ctx.EffectiveMessage.Reply(b, "Code already exists", nil)
+		return nil
 	}
 
-	rec, err := record.Add(context.Background(), code, target, update.Message.From.ID)
+	rec, err := record.Add(context.Background(), code, target, ctx.Message.From.Id)
 	if err != nil {
 		log.Printf("Error adding record: %v", err)
 
-		reply("Error adding record")
-		return
+		ctx.EffectiveMessage.Reply(b, "Error adding record", nil)
+		return nil
 	}
 
 	if err := ssg.StaticGenOne(rec); err != nil {
 		log.Printf("Error generating static: %v", err)
 	}
 
-	reply(fmt.Sprintf("Add a record %s -> %s", code, target))
+	ctx.EffectiveMessage.Reply(b, fmt.Sprintf("Add a record %s -> %s", code, target), nil)
+	return nil
 }

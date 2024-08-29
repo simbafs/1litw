@@ -34,10 +34,11 @@ var (
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "username", Type: field.TypeString},
-		{Name: "tgid", Type: field.TypeInt, Unique: true},
-		{Name: "custom_code", Type: field.TypeBool, Default: false},
+		{Name: "userid", Type: field.TypeInt64, Unique: true},
+		{Name: "super_admin", Type: field.TypeBool, Default: false},
 		{Name: "admin", Type: field.TypeBool, Default: false},
-		{Name: "read_all", Type: field.TypeBool, Default: false},
+		{Name: "create", Type: field.TypeBool, Default: true},
+		{Name: "custom_code", Type: field.TypeBool, Default: false},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{

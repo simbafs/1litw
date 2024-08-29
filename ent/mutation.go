@@ -537,11 +537,12 @@ type UserMutation struct {
 	typ            string
 	id             *int
 	username       *string
-	tgid           *int
-	addtgid        *int
-	customCode     *bool
+	userid         *int64
+	adduserid      *int64
+	superAdmin     *bool
 	admin          *bool
-	readAll        *bool
+	create         *bool
+	customCode     *bool
 	clearedFields  map[string]struct{}
 	records        map[int]struct{}
 	removedrecords map[int]struct{}
@@ -685,96 +686,96 @@ func (m *UserMutation) ResetUsername() {
 	m.username = nil
 }
 
-// SetTgid sets the "tgid" field.
-func (m *UserMutation) SetTgid(i int) {
-	m.tgid = &i
-	m.addtgid = nil
+// SetUserid sets the "userid" field.
+func (m *UserMutation) SetUserid(i int64) {
+	m.userid = &i
+	m.adduserid = nil
 }
 
-// Tgid returns the value of the "tgid" field in the mutation.
-func (m *UserMutation) Tgid() (r int, exists bool) {
-	v := m.tgid
+// Userid returns the value of the "userid" field in the mutation.
+func (m *UserMutation) Userid() (r int64, exists bool) {
+	v := m.userid
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldTgid returns the old "tgid" field's value of the User entity.
+// OldUserid returns the old "userid" field's value of the User entity.
 // If the User object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserMutation) OldTgid(ctx context.Context) (v int, err error) {
+func (m *UserMutation) OldUserid(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldTgid is only allowed on UpdateOne operations")
+		return v, errors.New("OldUserid is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldTgid requires an ID field in the mutation")
+		return v, errors.New("OldUserid requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldTgid: %w", err)
+		return v, fmt.Errorf("querying old value for OldUserid: %w", err)
 	}
-	return oldValue.Tgid, nil
+	return oldValue.Userid, nil
 }
 
-// AddTgid adds i to the "tgid" field.
-func (m *UserMutation) AddTgid(i int) {
-	if m.addtgid != nil {
-		*m.addtgid += i
+// AddUserid adds i to the "userid" field.
+func (m *UserMutation) AddUserid(i int64) {
+	if m.adduserid != nil {
+		*m.adduserid += i
 	} else {
-		m.addtgid = &i
+		m.adduserid = &i
 	}
 }
 
-// AddedTgid returns the value that was added to the "tgid" field in this mutation.
-func (m *UserMutation) AddedTgid() (r int, exists bool) {
-	v := m.addtgid
+// AddedUserid returns the value that was added to the "userid" field in this mutation.
+func (m *UserMutation) AddedUserid() (r int64, exists bool) {
+	v := m.adduserid
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ResetTgid resets all changes to the "tgid" field.
-func (m *UserMutation) ResetTgid() {
-	m.tgid = nil
-	m.addtgid = nil
+// ResetUserid resets all changes to the "userid" field.
+func (m *UserMutation) ResetUserid() {
+	m.userid = nil
+	m.adduserid = nil
 }
 
-// SetCustomCode sets the "customCode" field.
-func (m *UserMutation) SetCustomCode(b bool) {
-	m.customCode = &b
+// SetSuperAdmin sets the "superAdmin" field.
+func (m *UserMutation) SetSuperAdmin(b bool) {
+	m.superAdmin = &b
 }
 
-// CustomCode returns the value of the "customCode" field in the mutation.
-func (m *UserMutation) CustomCode() (r bool, exists bool) {
-	v := m.customCode
+// SuperAdmin returns the value of the "superAdmin" field in the mutation.
+func (m *UserMutation) SuperAdmin() (r bool, exists bool) {
+	v := m.superAdmin
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldCustomCode returns the old "customCode" field's value of the User entity.
+// OldSuperAdmin returns the old "superAdmin" field's value of the User entity.
 // If the User object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserMutation) OldCustomCode(ctx context.Context) (v bool, err error) {
+func (m *UserMutation) OldSuperAdmin(ctx context.Context) (v bool, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCustomCode is only allowed on UpdateOne operations")
+		return v, errors.New("OldSuperAdmin is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCustomCode requires an ID field in the mutation")
+		return v, errors.New("OldSuperAdmin requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCustomCode: %w", err)
+		return v, fmt.Errorf("querying old value for OldSuperAdmin: %w", err)
 	}
-	return oldValue.CustomCode, nil
+	return oldValue.SuperAdmin, nil
 }
 
-// ResetCustomCode resets all changes to the "customCode" field.
-func (m *UserMutation) ResetCustomCode() {
-	m.customCode = nil
+// ResetSuperAdmin resets all changes to the "superAdmin" field.
+func (m *UserMutation) ResetSuperAdmin() {
+	m.superAdmin = nil
 }
 
 // SetAdmin sets the "admin" field.
@@ -813,40 +814,76 @@ func (m *UserMutation) ResetAdmin() {
 	m.admin = nil
 }
 
-// SetReadAll sets the "readAll" field.
-func (m *UserMutation) SetReadAll(b bool) {
-	m.readAll = &b
+// SetCreate sets the "create" field.
+func (m *UserMutation) SetCreate(b bool) {
+	m.create = &b
 }
 
-// ReadAll returns the value of the "readAll" field in the mutation.
-func (m *UserMutation) ReadAll() (r bool, exists bool) {
-	v := m.readAll
+// Create returns the value of the "create" field in the mutation.
+func (m *UserMutation) Create() (r bool, exists bool) {
+	v := m.create
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldReadAll returns the old "readAll" field's value of the User entity.
+// OldCreate returns the old "create" field's value of the User entity.
 // If the User object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserMutation) OldReadAll(ctx context.Context) (v bool, err error) {
+func (m *UserMutation) OldCreate(ctx context.Context) (v bool, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldReadAll is only allowed on UpdateOne operations")
+		return v, errors.New("OldCreate is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldReadAll requires an ID field in the mutation")
+		return v, errors.New("OldCreate requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldReadAll: %w", err)
+		return v, fmt.Errorf("querying old value for OldCreate: %w", err)
 	}
-	return oldValue.ReadAll, nil
+	return oldValue.Create, nil
 }
 
-// ResetReadAll resets all changes to the "readAll" field.
-func (m *UserMutation) ResetReadAll() {
-	m.readAll = nil
+// ResetCreate resets all changes to the "create" field.
+func (m *UserMutation) ResetCreate() {
+	m.create = nil
+}
+
+// SetCustomCode sets the "customCode" field.
+func (m *UserMutation) SetCustomCode(b bool) {
+	m.customCode = &b
+}
+
+// CustomCode returns the value of the "customCode" field in the mutation.
+func (m *UserMutation) CustomCode() (r bool, exists bool) {
+	v := m.customCode
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCustomCode returns the old "customCode" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldCustomCode(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCustomCode is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCustomCode requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCustomCode: %w", err)
+	}
+	return oldValue.CustomCode, nil
+}
+
+// ResetCustomCode resets all changes to the "customCode" field.
+func (m *UserMutation) ResetCustomCode() {
+	m.customCode = nil
 }
 
 // AddRecordIDs adds the "records" edge to the Record entity by ids.
@@ -937,21 +974,24 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 6)
 	if m.username != nil {
 		fields = append(fields, user.FieldUsername)
 	}
-	if m.tgid != nil {
-		fields = append(fields, user.FieldTgid)
+	if m.userid != nil {
+		fields = append(fields, user.FieldUserid)
 	}
-	if m.customCode != nil {
-		fields = append(fields, user.FieldCustomCode)
+	if m.superAdmin != nil {
+		fields = append(fields, user.FieldSuperAdmin)
 	}
 	if m.admin != nil {
 		fields = append(fields, user.FieldAdmin)
 	}
-	if m.readAll != nil {
-		fields = append(fields, user.FieldReadAll)
+	if m.create != nil {
+		fields = append(fields, user.FieldCreate)
+	}
+	if m.customCode != nil {
+		fields = append(fields, user.FieldCustomCode)
 	}
 	return fields
 }
@@ -963,14 +1003,16 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case user.FieldUsername:
 		return m.Username()
-	case user.FieldTgid:
-		return m.Tgid()
-	case user.FieldCustomCode:
-		return m.CustomCode()
+	case user.FieldUserid:
+		return m.Userid()
+	case user.FieldSuperAdmin:
+		return m.SuperAdmin()
 	case user.FieldAdmin:
 		return m.Admin()
-	case user.FieldReadAll:
-		return m.ReadAll()
+	case user.FieldCreate:
+		return m.Create()
+	case user.FieldCustomCode:
+		return m.CustomCode()
 	}
 	return nil, false
 }
@@ -982,14 +1024,16 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 	switch name {
 	case user.FieldUsername:
 		return m.OldUsername(ctx)
-	case user.FieldTgid:
-		return m.OldTgid(ctx)
-	case user.FieldCustomCode:
-		return m.OldCustomCode(ctx)
+	case user.FieldUserid:
+		return m.OldUserid(ctx)
+	case user.FieldSuperAdmin:
+		return m.OldSuperAdmin(ctx)
 	case user.FieldAdmin:
 		return m.OldAdmin(ctx)
-	case user.FieldReadAll:
-		return m.OldReadAll(ctx)
+	case user.FieldCreate:
+		return m.OldCreate(ctx)
+	case user.FieldCustomCode:
+		return m.OldCustomCode(ctx)
 	}
 	return nil, fmt.Errorf("unknown User field %s", name)
 }
@@ -1006,19 +1050,19 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetUsername(v)
 		return nil
-	case user.FieldTgid:
-		v, ok := value.(int)
+	case user.FieldUserid:
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetTgid(v)
+		m.SetUserid(v)
 		return nil
-	case user.FieldCustomCode:
+	case user.FieldSuperAdmin:
 		v, ok := value.(bool)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetCustomCode(v)
+		m.SetSuperAdmin(v)
 		return nil
 	case user.FieldAdmin:
 		v, ok := value.(bool)
@@ -1027,12 +1071,19 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetAdmin(v)
 		return nil
-	case user.FieldReadAll:
+	case user.FieldCreate:
 		v, ok := value.(bool)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetReadAll(v)
+		m.SetCreate(v)
+		return nil
+	case user.FieldCustomCode:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCustomCode(v)
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
@@ -1042,8 +1093,8 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 // this mutation.
 func (m *UserMutation) AddedFields() []string {
 	var fields []string
-	if m.addtgid != nil {
-		fields = append(fields, user.FieldTgid)
+	if m.adduserid != nil {
+		fields = append(fields, user.FieldUserid)
 	}
 	return fields
 }
@@ -1053,8 +1104,8 @@ func (m *UserMutation) AddedFields() []string {
 // was not set, or was not defined in the schema.
 func (m *UserMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
-	case user.FieldTgid:
-		return m.AddedTgid()
+	case user.FieldUserid:
+		return m.AddedUserid()
 	}
 	return nil, false
 }
@@ -1064,12 +1115,12 @@ func (m *UserMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *UserMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case user.FieldTgid:
-		v, ok := value.(int)
+	case user.FieldUserid:
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.AddTgid(v)
+		m.AddUserid(v)
 		return nil
 	}
 	return fmt.Errorf("unknown User numeric field %s", name)
@@ -1101,17 +1152,20 @@ func (m *UserMutation) ResetField(name string) error {
 	case user.FieldUsername:
 		m.ResetUsername()
 		return nil
-	case user.FieldTgid:
-		m.ResetTgid()
+	case user.FieldUserid:
+		m.ResetUserid()
 		return nil
-	case user.FieldCustomCode:
-		m.ResetCustomCode()
+	case user.FieldSuperAdmin:
+		m.ResetSuperAdmin()
 		return nil
 	case user.FieldAdmin:
 		m.ResetAdmin()
 		return nil
-	case user.FieldReadAll:
-		m.ResetReadAll()
+	case user.FieldCreate:
+		m.ResetCreate()
+		return nil
+	case user.FieldCustomCode:
+		m.ResetCustomCode()
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)

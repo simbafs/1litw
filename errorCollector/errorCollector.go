@@ -30,9 +30,16 @@ func (ec *ErrorCollector) Add(err error) {
 }
 
 func (ec *ErrorCollector) Error() string {
+	if ec.IsEmpty() {
+		return ""
+	}
 	return errors.Join(ec.errs...).Error()
 }
 
 func (ec *ErrorCollector) IsEmpty() bool {
 	return len(ec.errs) == 0
+}
+
+func (ec *ErrorCollector) Join() error {
+	return errors.Join(ec.errs...)
 }

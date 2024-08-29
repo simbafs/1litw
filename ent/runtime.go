@@ -33,16 +33,20 @@ func init() {
 	userDescUsername := userFields[0].Descriptor()
 	// user.UsernameValidator is a validator for the "username" field. It is called by the builders before save.
 	user.UsernameValidator = userDescUsername.Validators[0].(func(string) error)
-	// userDescCustomCode is the schema descriptor for customCode field.
-	userDescCustomCode := userFields[2].Descriptor()
-	// user.DefaultCustomCode holds the default value on creation for the customCode field.
-	user.DefaultCustomCode = userDescCustomCode.Default.(bool)
+	// userDescSuperAdmin is the schema descriptor for superAdmin field.
+	userDescSuperAdmin := userFields[2].Descriptor()
+	// user.DefaultSuperAdmin holds the default value on creation for the superAdmin field.
+	user.DefaultSuperAdmin = userDescSuperAdmin.Default.(bool)
 	// userDescAdmin is the schema descriptor for admin field.
 	userDescAdmin := userFields[3].Descriptor()
 	// user.DefaultAdmin holds the default value on creation for the admin field.
 	user.DefaultAdmin = userDescAdmin.Default.(bool)
-	// userDescReadAll is the schema descriptor for readAll field.
-	userDescReadAll := userFields[4].Descriptor()
-	// user.DefaultReadAll holds the default value on creation for the readAll field.
-	user.DefaultReadAll = userDescReadAll.Default.(bool)
+	// userDescCreate is the schema descriptor for create field.
+	userDescCreate := userFields[4].Descriptor()
+	// user.DefaultCreate holds the default value on creation for the create field.
+	user.DefaultCreate = userDescCreate.Default.(bool)
+	// userDescCustomCode is the schema descriptor for customCode field.
+	userDescCustomCode := userFields[5].Descriptor()
+	// user.DefaultCustomCode holds the default value on creation for the customCode field.
+	user.DefaultCustomCode = userDescCustomCode.Default.(bool)
 }
