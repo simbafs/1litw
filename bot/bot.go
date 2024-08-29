@@ -2,6 +2,7 @@ package bot
 
 import (
 	"1li/bot/perms"
+	"1li/writer"
 	"log"
 	"time"
 
@@ -11,8 +12,14 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/message"
 )
 
+type fs struct {
+	w writer.Writer
+}
+
 // Run starts the bot.
-func Run(token string) error {
+func Run(token string, w writer.Writer) error {
+	fs := &fs{w: w}
+
 	b, err := gotgbot.NewBot(token, nil)
 	if err != nil {
 		return err
@@ -33,9 +40,9 @@ func Run(token string) error {
 	}) // TODO: error handler
 
 	dispatcher.AddHandler(handlers.NewCommand("start", cmdStart))
-	dispatcher.AddHandler(handlers.NewCommand("sync", cmdSync))
+	dispatcher.AddHandler(handlers.NewCommand("sync", fs.cmdSync))
 	dispatcher.AddHandler(perms.CMD)
-	dispatcher.AddHandler(handlers.NewMessage(message.All, shortURL))
+	dispatcher.AddHandler(handlers.NewMessage(message.All, fs.shortURL))
 
 	updater := ext.NewUpdater(dispatcher, nil)
 

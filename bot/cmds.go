@@ -30,8 +30,8 @@ func cmdStart(b *gotgbot.Bot, ctx *ext.Context) error {
 	return nil
 }
 
-func cmdSync(b *gotgbot.Bot, ctx *ext.Context) error {
-	if err := ssg.SyncFromDB(); err != nil {
+func (fs *fs) cmdSync(b *gotgbot.Bot, ctx *ext.Context) error {
+	if err := ssg.SyncFromDB(fs.w); err != nil {
 		log.Printf("Error syncing from db: %v", err)
 
 		ctx.EffectiveMessage.Reply(b, "Error syncing from db", nil)
@@ -41,7 +41,7 @@ func cmdSync(b *gotgbot.Bot, ctx *ext.Context) error {
 	return nil
 }
 
-func shortURL(b *gotgbot.Bot, ctx *ext.Context) error {
+func (fs *fs) shortURL(b *gotgbot.Bot, ctx *ext.Context) error {
 	u, err := user.Get(context.Background(), ctx.Message.From.Id)
 	if err != nil {
 		ctx.EffectiveMessage.Reply(b, "Please /start first", nil)
@@ -98,7 +98,7 @@ func shortURL(b *gotgbot.Bot, ctx *ext.Context) error {
 		return nil
 	}
 
-	if err := ssg.StaticGenOne(rec); err != nil {
+	if err := ssg.StaticGenOne(rec, fs.w.CD(rec.Code+"/index.html")); err != nil {
 		log.Printf("Error generating static: %v", err)
 	}
 

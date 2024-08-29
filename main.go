@@ -3,9 +3,8 @@ package main
 import (
 	"1li/bot"
 	"1li/db"
-	"1li/fileserver"
+	"1li/writer"
 	"log"
-	"os"
 )
 
 func main() {
@@ -13,13 +12,9 @@ func main() {
 		log.Fatalf("failed initializing database: %v", err)
 	}
 
-	if err := fileserver.Init("static"); err != nil {
-		log.Fatalf("failed initializing server: %v", err)
-	}
+	cfg := FromEnv()
 
-	go func() {
-		log.Fatal(fileserver.ListenAndServe(":3000", os.DirFS("static")))
-	}()
+	w := writer.NewGitHub(cfg.GitHubToken, cfg.User, cfg.Repo, cfg.Branch)
 
-	log.Fatal(bot.Run("7199207337:AAG_X5KQrXUkqtw_IeLtTe6CUAF2ZTNkLzA"))
+	log.Fatal(bot.Run(cfg.TgToken, w))
 }
