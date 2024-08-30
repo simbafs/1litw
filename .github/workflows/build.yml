@@ -19,12 +19,12 @@ jobs:
                   username: ${{ github.actor }}
                   password: ${{ secrets.GITHUB_TOKEN }}
 
-            # - name: Set env
-            #   id: vars
-            #   run: echo "tag=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
+            - name: Set env
+              id: vars
+              run: echo "tag=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
 
-            # - name: echo
-            #   run: echo ${{ steps.vars.outputs.tag }}
+            - name: echo
+              run: echo ${{ steps.vars.outputs.tag }}
 
             - name: build image
               run: |
