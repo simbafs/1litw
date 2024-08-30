@@ -49,7 +49,7 @@ func SyncFromDB(w writer.Writer) error {
 	for _, rec := range recs {
 		go func(rec *ent.Record) {
 			defer wg.Done()
-			err := StaticGenOne(rec, w.CD(rec.Code+"/index.html"))
+			err := StaticGenOne(rec, w.SetCode(rec.Code))
 			errs.Add(err)
 		}(rec)
 	}

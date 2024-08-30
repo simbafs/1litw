@@ -15,7 +15,11 @@ func main() {
 
 	cfg := config.FromEnv()
 
-	w := writer.NewGitHub(cfg.GitHubToken, cfg.User, cfg.Repo, cfg.Branch)
+	local := writer.Local{
+		Base: cfg.Base,
+	}
 
-	log.Fatal(bot.Run(cfg, w))
+	go log.Fatal(local.ListenAndServe(cfg.Addr))
+
+	log.Fatal(bot.Run(cfg, local))
 }

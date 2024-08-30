@@ -21,18 +21,9 @@ type GitHub struct {
 	path string
 }
 
-func NewGitHub(key, user, repo, branch string) GitHub {
-	return GitHub{
-		key:    key,
-		user:   user,
-		repo:   repo,
-		branch: branch,
-	}
-}
-
-func (gh GitHub) CD(path string) Writer {
-	gh.path = path
-	return gh
+func (github GitHub) SetCode(code string) Writer {
+	github.path = code + "/index.html"
+	return github
 }
 
 func (github GitHub) Write(content []byte) (n int, err error) {

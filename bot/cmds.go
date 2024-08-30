@@ -98,7 +98,7 @@ func (bot *bot) shortURL(b *gotgbot.Bot, ctx *ext.Context) error {
 		return nil
 	}
 
-	if err := ssg.StaticGenOne(rec, bot.w.CD(rec.Code+"/index.html")); err != nil {
+	if err := ssg.StaticGenOne(rec, bot.w.SetCode(rec.Code)); err != nil {
 		log.Printf("Error generating static: %v", err)
 	}
 
