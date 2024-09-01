@@ -5,6 +5,7 @@ package perms
 // 2. 除存狀態
 
 import (
+	"1li/bot/msg"
 	"1li/db/user"
 	"1li/ent"
 	"context"
@@ -55,13 +56,13 @@ var CMD = handlers.NewConversation(
 
 func (c *client) resUser(b *gotgbot.Bot, ctx *ext.Context) error {
 	if ok, err := user.GetPerm(context.Background(), ctx.EffectiveUser.Id, "superAdmin"); ent.IsNotFound(err) {
-		ctx.EffectiveChat.SendMessage(b, "請先使用 /start", nil)
+		ctx.EffectiveChat.SendMessage(b, msg.Register, nil)
 		return c.resExit(b, ctx)
 	} else if err != nil {
-		ctx.EffectiveChat.SendMessage(b, "資料庫錯誤", nil)
+		ctx.EffectiveChat.SendMessage(b, msg.ServerError, nil)
 		return err
 	} else if !ok {
-		ctx.EffectiveChat.SendMessage(b, "權限不足", nil)
+		ctx.EffectiveChat.SendMessage(b, msg.PermissionDenied, nil)
 		return c.resExit(b, ctx)
 	}
 
@@ -81,10 +82,10 @@ func isUserShared(msg *gotgbot.Message) bool {
 
 func (c *client) resPerm(b *gotgbot.Bot, ctx *ext.Context) error {
 	if _, err := user.GetPerm(context.Background(), ctx.Message.UsersShared.Users[0].UserId, "superAdmin"); ent.IsNotFound(err) {
-		ctx.EffectiveChat.SendMessage(b, "查無使用者", nil)
+		ctx.EffectiveChat.SendMessage(b, msg.UserNotExist, nil)
 		return c.resExit(b, ctx)
 	} else if err != nil {
-		ctx.EffectiveChat.SendMessage(b, "查詢使用時發生錯誤", nil)
+		ctx.EffectiveChat.SendMessage(b, msg.ServerError, nil)
 		return err
 	}
 
@@ -145,14 +146,14 @@ func (c *client) resSetPerm(b *gotgbot.Bot, ctx *ext.Context) error {
 	value := ctx.CallbackQuery.Data
 	d, ok := c.get(ctx)
 	if !ok {
-		ctx.EffectiveChat.SendMessage(b, "還沒選取使用者", nil)
+		ctx.EffectiveChat.SendMessage(b, msg.UserNotSelected, nil)
 	}
 	value, _ = strings.CutPrefix(value, ASK_VALUE)
 	d.Value = value == "true"
 
 	_, err = user.Get(context.Background(), d.UserId)
 	if ent.IsNotFound(err) {
-		ctx.EffectiveChat.SendMessage(b, "使用者不存在", nil)
+		ctx.EffectiveChat.SendMessage(b, msg.UserNotExist, nil)
 		return c.resExit(b, ctx)
 	}
 
@@ -167,7 +168,7 @@ func (c *client) resSetPerm(b *gotgbot.Bot, ctx *ext.Context) error {
 
 	log.Printf("set user permission: %s, perm: %s, value: %v\n", d.Username, d.Perm, d.Value)
 
-	ctx.EffectiveChat.SendMessage(b, fmt.Sprintf("設定 %s: %v 給 %s", d.Perm, d.Value, d.Username), nil)
+	ctx.EffectiveChat.SendMessage(b, fmt.Sprintf(msg.PermSet, d.Perm, d.Value, d.Username), nil)
 
 	// err = askPerm(b, ctx)
 	// if err != nil {
@@ -222,7 +223,7 @@ func askUser(b *gotgbot.Bot, ctx *ext.Context) error {
 		ReplyMarkup: &keyboard,
 	}
 
-	_, err := ctx.EffectiveChat.SendMessage(b, "請選擇目標使用者", &msgOpt)
+	_, err := ctx.EffectiveChat.SendMessage(b, msg.UserNotSelected, &msgOpt)
 	if err != nil {
 		return fmt.Errorf("Fail to send message: %w", err)
 	}
@@ -269,12 +270,12 @@ func askPerm(b *gotgbot.Bot, ctx *ext.Context) error {
 	}
 
 	// TODO: delete this message or clear keyboard without showing a message
-	_, err := ctx.EffectiveChat.SendMessage(b, "claer keyboard", clearKeyboard)
+	_, err := ctx.EffectiveChat.SendMessage(b, msg.KeyboardClear, clearKeyboard)
 	if err != nil {
 		return fmt.Errorf("Fail to remove keyboard: %w", err)
 	}
 
-	_, err = ctx.EffectiveChat.SendMessage(b, "請選擇權限", &msgOpt)
+	_, err = ctx.EffectiveChat.SendMessage(b, msg.PermNotSelected, &msgOpt)
 	if err != nil {
 		return fmt.Errorf("Fail to send message: %w", err)
 	}
@@ -306,7 +307,7 @@ func askValue(b *gotgbot.Bot, ctx *ext.Context, perm string) error {
 		ReplyMarkup: &keyboard,
 	}
 
-	_, err := ctx.EffectiveChat.SendMessage(b, fmt.Sprintf("是否要給予權限 %s?", perm), &msgOpt)
+	_, err := ctx.EffectiveChat.SendMessage(b, fmt.Sprintf(msg.DoesSetPerm, perm), &msgOpt)
 	if err != nil {
 		return fmt.Errorf("Fail to send message: %w", err)
 	}

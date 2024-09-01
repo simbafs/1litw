@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"1li/bot/msg"
 	"1li/db/record"
 	"1li/db/user"
 	"1li/ssg"
@@ -16,16 +17,16 @@ import (
 
 func cmdStart(b *gotgbot.Bot, ctx *ext.Context) error {
 	if u, err := user.Get(context.Background(), ctx.Message.From.Id); err == nil {
-		ctx.EffectiveMessage.Reply(b, fmt.Sprintf("Welcome back %s", u.Username), nil)
+		ctx.EffectiveMessage.Reply(b, fmt.Sprintf(msg.WellcomeBack, u.Username), nil)
 		return nil
 	}
 
 	if _, err := user.Add(context.Background(), ctx.Message.From.Username, ctx.Message.From.Id); err != nil {
 		log.Printf("Error adding user: %v", err)
-		ctx.EffectiveMessage.Reply(b, "Error adding user, try /start again later", nil)
+		ctx.EffectiveMessage.Reply(b, msg.ServerError, nil)
 	}
 
-	ctx.EffectiveMessage.Reply(b, fmt.Sprintf("Welcome to 1li! %s", ctx.Message.From.Username), nil)
+	ctx.EffectiveMessage.Reply(b, fmt.Sprintf(msg.Wellcome, ctx.Message.From.Username), nil)
 
 	return nil
 }
@@ -34,26 +35,26 @@ func (bot *bot) cmdSync(b *gotgbot.Bot, ctx *ext.Context) error {
 	if err := ssg.SyncFromDB(bot.w); err != nil {
 		log.Printf("Error syncing from db: %v", err)
 
-		ctx.EffectiveMessage.Reply(b, "Error syncing from db", nil)
+		ctx.EffectiveMessage.Reply(b, msg.ServerError, nil)
 		return nil
 	}
-	ctx.EffectiveMessage.Reply(b, "Sync from db done", nil)
+	ctx.EffectiveMessage.Reply(b, msg.Done, nil)
 	return nil
 }
 
 func (bot *bot) shortURL(b *gotgbot.Bot, ctx *ext.Context) error {
 	u, err := user.Get(context.Background(), ctx.Message.From.Id)
 	if err != nil {
-		ctx.EffectiveMessage.Reply(b, "Please /start first", nil)
+		ctx.EffectiveMessage.Reply(b, msg.Register, nil)
 		return nil
 	}
 
 	if ok, err := user.GetPerm(context.Background(), ctx.EffectiveUser.Id, "create"); err != nil {
 		log.Printf("Error getting permission: %v", err)
-		ctx.EffectiveMessage.Reply(b, "查詢權限時發生錯誤", nil)
+		ctx.EffectiveMessage.Reply(b, msg.ServerError, nil)
 		return nil
 	} else if !ok {
-		ctx.EffectiveMessage.Reply(b, "權限不足", nil)
+		ctx.EffectiveMessage.Reply(b, msg.PermissionDenied, nil)
 		return nil
 	}
 
@@ -68,13 +69,13 @@ func (bot *bot) shortURL(b *gotgbot.Bot, ctx *ext.Context) error {
 			code = part[0]
 			target = part[1]
 		} else {
-			ctx.EffectiveMessage.Reply(b, "你沒有權限自訂短網址", nil)
+			ctx.EffectiveMessage.Reply(b, msg.PermissionDeniedCustomCode, nil)
 			return nil
 		}
 	}
 
 	if !util.IsValidURL(target) {
-		ctx.EffectiveMessage.Reply(b, "無效的網址", nil)
+		ctx.EffectiveMessage.Reply(b, msg.InvalidURL, nil)
 		return nil
 	}
 
@@ -83,10 +84,10 @@ func (bot *bot) shortURL(b *gotgbot.Bot, ctx *ext.Context) error {
 	// check is code exists
 	if exists, err := record.Exists(context.Background(), code); err != nil {
 		log.Printf("Error checking record: %v", err)
-		ctx.EffectiveMessage.Reply(b, "資料庫錯誤", nil)
+		ctx.EffectiveMessage.Reply(b, msg.ServerError, nil)
 		return nil
 	} else if exists {
-		ctx.EffectiveMessage.Reply(b, "短網址已存在", nil)
+		ctx.EffectiveMessage.Reply(b, msg.URLExist, nil)
 		return nil
 	}
 
@@ -94,7 +95,7 @@ func (bot *bot) shortURL(b *gotgbot.Bot, ctx *ext.Context) error {
 	if err != nil {
 		log.Printf("Error adding record: %v", err)
 
-		ctx.EffectiveMessage.Reply(b, "資料庫錯誤", nil)
+		ctx.EffectiveMessage.Reply(b, msg.ServerError, nil)
 		return nil
 	}
 
@@ -102,6 +103,6 @@ func (bot *bot) shortURL(b *gotgbot.Bot, ctx *ext.Context) error {
 		log.Printf("Error generating static: %v", err)
 	}
 
-	ctx.EffectiveMessage.Reply(b, fmt.Sprintf("%s/%s -> %s", bot.Config.Origin, code, target), nil)
+	ctx.EffectiveMessage.Reply(b, fmt.Sprintf(msg.ShortURL, bot.Config.Origin, code, target), nil)
 	return nil
 }
